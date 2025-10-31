@@ -46,10 +46,6 @@ def return_HH_equations(model = 'hh-neuron'):
     dn/dt=(n_inf-n)/tau_n                           : 1
     ''')
 
-    # I_inj=I_dc+I_ramp*t/T_ramp                      : amp/meter**2
-    # I_inj= 2*I_max-(I_max*exp((t-(0.15*second))**2/(2*0.003*(second**2))))                     : amp/meter**2
-    # I_inj=I_max * TimedArray(t)                   : amp/meter**2
-
     if model=='hh-ecs':
         eqs += Equations('''
             dn_Na_N/dt = -S_N/F*(I_Na + 3*I_NKP) : mol
