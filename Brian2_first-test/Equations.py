@@ -1,24 +1,51 @@
 # Equations.py
 import math
 import scipy.constants as spc
+from scipy.optimize import brentq
 import sympy as sp
 from brian2 import *
 
 
-def calculate_gating_variable_m(equilibrium_potential):
-    x = (182*(equilibrium_potential - (-38))/(1-math.exp((-38 - equilibrium_potential)/6)))/((182*(equilibrium_potential - (-38))/(1-math.exp((-38 - equilibrium_potential)/6)) + (124 *(-38 - equilibrium_potential))/1-math.exp((equilibrium_potential - (-38))/6)))
-    return x
+gating_variables = {
+    'm': 0.01,
+    'n': 0.01,
+    'h': 0.99
+}
 
-def calculate_gating_variable_h(equilibrium_potential):
-    x = (15*(-66 - equilibrium_potential)/(1 - math.exp((equilibrium_potential - (-66))/6)))/(15*(-66 - equilibrium_potential)/(1 - math.exp((equilibrium_potential - (-66))/6))+(15*(equilibrium_potential - (-66))/(1 - math.exp((-66 - equilibrium_potential)/6))))
-    return x
+conductances = {
+    'K': 6.93,
+    'Na': 2.04,
+    'Cl': 0.0000338
+}
 
-def calculate_gating_variable_n(equilibrium_potential):
-    x = 1/(1+math.exp((18.7 - equilibrium_potential)/9.7))
-    return x
+ion_equilibria = {
+    'E_K': -100,
+    'E_Na': 71,
+    'E_Cl': -87
+}
 
-def calculate_resting_state_potential(P, T, C):
-    resting_potential = spc.R * T/spc.physical_constants['Faraday constant'][0] * math.log((P['P_K'] * C['C_K_E'] + P['P_Na'] * C['C_Na_E'] + P['P_Cl'] * C['C_Cl_N'])/ P['P_K'] * C['C_K_N'] + P['P_Na'] * C['C_Na_N'] + P['P_Cl'] * C['C_K_E'])
+
+def gating_variable_m(membrane_potential):
+    return (182*(membrane_potential - (-38))/(1-math.exp((-38 - membrane_potential)/6)))/((182*(membrane_potential - (-38))/(1-math.exp((-38 - membrane_potential)/6)) + (124 *(-38 - membrane_potential))/1-math.exp((membrane_potential - (-38))/6)))
+
+def gating_variable_h(membrane_potential):
+    return (15*(-66 - membrane_potential)/(1 - math.exp((membrane_potential - (-66))/6)))/(15*(-66 - membrane_potential)/(1 - math.exp((membrane_potential - (-66))/6))+(15*(membrane_potential - (-66))/(1 - math.exp((-66 - membrane_potential)/6))))    
+
+def gating_variable_n(membrane_potential):
+    return 1/(1+math.exp((18.7 - membrane_potential)/9.7))   
+
+def I_Cl(V): 
+    return conductances['Cl'] * (V - ion_equilibria['E_Cl'])
+def I_Na(V):   
+    return conductances['Na'] * (gating_variable_m(V)**3) * gating_variable_h(V) * (V - ion_equilibria['E_Na'])
+def I_K(V):    
+    return conductances['K'] * (gating_variable_n(V)) * (V - ion_equilibria['E_K'])
+
+def total_current(V):
+    return   - I_K(V) - I_Na(V) - I_Cl(V)
+
+def calculate_resting_state_potential():
+    resting_potential = brentq(total_current, -100, 50)
     return resting_potential
 
 def calculate_cell_potential(gate, g):
@@ -89,14 +116,5 @@ def return_HH_equations(model = 'hh-neuron'):
 
 
 
-gating_variables = {
-    'm': 0.01,
-    'n': 0.01,
-    'h': 0.99
-}
-
-conductances = {
-    'K': 6.93,
-    'Na': 2.04,
-    'Cl': 0.0000338
-}
+V_eq = calculate_resting_state_potential()
+print(f"Equilibrium (resting) potential: {V_eq:.3f} mV")
