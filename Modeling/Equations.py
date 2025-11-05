@@ -2,119 +2,193 @@
 import math
 import scipy.constants as spc
 from scipy.optimize import brentq
+from scipy.optimize import root
 import sympy as sp
 from brian2 import *
 
 
-gating_variables = {
-    'm': 0.01,
-    'n': 0.01,
-    'h': 0.99
-}
+## Initial variables
+
+F = spc.physical_constants['Faraday constant'][0]
+
 
 conductances = {
-    'K': 6.93,
-    'Na': 2.04,
-    'Cl': 0.0000338
+    'K': 0.638e6,
+    'Na': 2.04e6,
+    'Cl': 33.8,
+}
+
+concentrations = {## Concentrations to setup reverse potentials
+            'C0_Na_N': 10,
+            'C0_Na_E': 145,
+            'C0_K_N': 130,
+            'C0_K_E': 3,
+            'C0_Cl_N': 5,
+            'C0_Cl_E': 130
 }
 
 ion_equilibria = {
-    'E_K': -100,
-    'E_Na': 71,
-    'E_Cl': -87
 }
 
+zetas = {
+    'zeta_Na' : 13,
+    'zeta_K' : 0.2
+}
 
-def gating_variable_m(membrane_potential):
-    return (182*(membrane_potential - (-38))/(1-math.exp((-38 - membrane_potential)/6)))/((182*(membrane_potential - (-38))/(1-math.exp((-38 - membrane_potential)/6)) + (124 *(-38 - membrane_potential))/1-math.exp((membrane_potential - (-38))/6)))
+## Basic functions
+def ThermalVoltage(T):
+    return spc.R*(T+273.15)/spc.physical_constants['Faraday constant'][0]
+def NernstPotential(x_e,x_i,z,T):
+    V_T = ThermalVoltage(T)
+    return V_T/z*np.log(x_e/x_i)
+def Hill(x,K,n):
+    return x**n/(x**n+K**n)
 
-def gating_variable_h(membrane_potential):
-    return (15*(-66 - membrane_potential)/(1 - math.exp((membrane_potential - (-66))/6)))/(15*(-66 - membrane_potential)/(1 - math.exp((membrane_potential - (-66))/6))+(15*(membrane_potential - (-66))/(1 - math.exp((-66 - membrane_potential)/6))))    
+## Concentrations and ionic variations
+def C_Cl_N(C0_Cl_N, n_Cl_N, Volume):
+    return C0_Cl_N + n_Cl_N/Volume
+def C_Na_N(C0_Na_N, n_Na_N, Volume):
+    return C0_Na_N + n_Na_N/Volume
+def C_Na_N(C0_K_N, n_K_N, Volume):
+    return C0_K_N + n_K_N/Volume
+def dn_Na_N(I_Na, I_NKP, surface):
+    return -surface/F*(I_Na + 3*I_NKP)
+def dn_K_N(I_K, I_NKP, I_KCC, surface):
+    return -surface/F*(I_K - 2*I_NKP - I_KCC)    
+def dn_Cl_N(I_Cl, I_KCC, surface):
+    return surface/F*(I_Cl + I_KCC)
 
-def gating_variable_n(membrane_potential):
-    return 1/(1+math.exp((18.7 - membrane_potential)/9.7))   
+## Calaculation reversal potential for each ion
+ion_equilibria['E_K'] = NernstPotential(concentrations['C0_K_E'],concentrations['C0_K_N'],1, 37) * 1000
+ion_equilibria['E_Na'] = NernstPotential(concentrations['C0_Na_E'],concentrations['C0_Na_N'],1, 37) * 1000
+ion_equilibria['E_Cl'] = NernstPotential(concentrations['C0_Cl_E'],concentrations['C0_Cl_N'],-1, 37) * 1000
 
-def I_Cl(V): 
-    return conductances['Cl'] * (V - ion_equilibria['E_Cl'])
-def I_Na(V):   
-    return conductances['Na'] * (gating_variable_m(V)**3) * gating_variable_h(V) * (V - ion_equilibria['E_Na'])
-def I_K(V):    
-    return conductances['K'] * (gating_variable_n(V)) * (V - ion_equilibria['E_K'])
 
-def total_current(V):
-    return   - I_K(V) - I_Na(V) - I_Cl(V)
 
-def calculate_resting_state_potential():
-    resting_potential = brentq(total_current, -100, 50)
+## Calculation gating variables 
+def alpha_m(V):
+    return 182*(V - (-38))/(1 - math.exp((-38 - V)/6))
+def beta_m(V):
+    return 124*(-38 - V)/(1 - math.exp((V - (-38))/6))
+def alpha_h(V):
+    return 15*(-66 - V)/(1 - math.exp((V - (-66))/6))
+def beta_h(V):
+    return 15*(V - (-66))/(1 - math.exp((-66 - V)/6))
+def gating_variable_m(V):
+    return alpha_m(V)/(alpha_m(V) + beta_m(V))
+def gating_variable_h(V):
+    return alpha_h(V)/(alpha_h(V) + beta_h(V))
+def gating_variable_n(V):
+    return 1/(1+math.exp((18.7 - V)/9.7))   
+
+## Calculations ionic currents 1 - VARIABLE VOLTAGE
+def I_Cl(V, Reversal_potential): 
+    return conductances['Cl'] * (V - Reversal_potential)
+def I_Na(V, Reversal_potential):   
+    return conductances['Na'] * (gating_variable_m(V)**3) * gating_variable_h(V) * (V - Reversal_potential)
+def I_K(V, Reversal_potential):    
+    return conductances['K'] * (gating_variable_n(V)) * (V - Reversal_potential)
+def I_NKP(V, T, concentrations, zetas, x):
+    V_T = ThermalVoltage(T) * 1000
+    print(V_T)
+    return x**2*(1 + 0.1245 * exp(-V/(10*V_T)) - 0.0052 * exp(-V/V_T) * (1 - exp(concentrations['C0_Na_E']/67.3))) * Hill(concentrations['C0_Na_N'], zetas['zeta_Na'], 1.5) * Hill(concentrations['C0_K_E'], zetas['zeta_K'], 1)
+def I_KCC(conductances, ion_equilibria):
+    return conductances['g_KCC']*(ion_equilibria['E_K'] - ion_equilibria['E_Cl'])
+
+## Calculations ionic currents_inf 2 - AT RESTING POTENTIAL (ik that they aren't necessary with the functions above already being defined but hey)
+def I_Na_inf(leakage_conductance):
+    return (conductances['Na'] * gating_variable_m(-89.89025359)**3 * gating_variable_h(-89.89025359) + leakage_conductance) * (-89.89025359 - (NernstPotential(concentrations['C0_Na_E'], concentrations['C0_Na_N'], 1, 37)*1000))
+def I_Na_inf_ohne_lc():
+    return (conductances['Na'] * gating_variable_m(-89.89025359)**3 * gating_variable_h(-89.89025359)) * (-89.89025359 - (NernstPotential(concentrations['C0_Na_E'], concentrations['C0_Na_N'], 1, 37)*1000))
+def I_K_inf():
+    return conductances['K'] * gating_variable_n(-89.89025359) * (-89.89025359 - (NernstPotential(concentrations['C0_K_E'], concentrations['C0_K_N'], 1, 37)*1000))
+def I_Cl_inf():
+    return conductances['Cl'] * (-89.89025359 - (NernstPotential(concentrations['C0_Cl_E'], concentrations['C0_Cl_N'], -1, 37)*1000))
+
+## Calculations I_NKP_max - BASED ON THE RELATION BETWEEN I_Na_inf and I_NKP <- I_Na_inf + 3*I_NKP = 0
+def sigma():
+    return 1/7*math.exp(concentrations['C0_Na_E']/67.3 - 1)
+def f_NaK(V, V_T, sigma):
+    return 1/(1 + 0.1245 * exp(-V/(10*V_T)) + 0.0365 * sigma * math.exp(-V/V_T))
+def calculate_I_NKP_max(I_Na_inf, f_NaK, Hill_Na, Hill_K):
+    return -(I_Na_inf/(3 * f_NaK * Hill_Na * Hill_K))
+
+## Consistency equation for the calculation of the necessary leakage conductance of the sodium-channel
+def equilibrium_current(leakage_conductance):
+    return 2/3 * I_Na_inf(leakage_conductance) + I_K_inf() + I_Cl_inf()
+
+
+## Calculation of the total currents in HH and HH-ECS
+def total_current_hh(V):
+    return   (- I_K(V, ion_equilibria['E_K']) - I_Na(V, ion_equilibria['E_Na']) - I_Cl(V, ion_equilibria['E_Cl']))
+def total_current_hhecs(leakage_conductance, x):
+    return   - I_K(-89.89025359, ion_equilibria['E_K']) - I_Na_inf(leakage_conductance) - I_Cl(-89.89025359, ion_equilibria['E_Cl']) - I_NKP(-89.89025359, 37, concentrations, zetas, x)
+
+## Calculation of the resting state Potential in HH + Calculation conductance of KCC + Calculation leakage conductance of the sodium-channel
+def calculate_resting_state_potential_hh():
+    resting_potential = brentq(total_current_hh, -100, 50)
     return resting_potential
+def conductance_KCC(V, Nernst_Cl, Nernst_K, conductance_Cl):
+    return conductance_Cl * (V - Nernst_Cl)/(Nernst_Cl - Nernst_K)
+def calc_leakage_conductance():
+    leakage_conductance = brentq(equilibrium_current, 0, 50000)
+    return leakage_conductance
 
-def calculate_cell_potential(gate, g):
-    potential = sp.symbols('potential')
-    gleichung = - g['Na'] * gate['m'] * gate['h'] * (potential - 71) - g['K'] * gate['n'] * (potential - 100) - g['Cl'] * (potential - (-87))
-    solution = sp.solve(gleichung, potential)
-    return solution
+conductances['g_KCC'] = conductance_KCC(-89.89025359, ion_equilibria['E_Cl'], ion_equilibria['E_K'], conductances['Cl'])
 
-def return_HH_equations(model = 'hh-neuron'):
-    
-    eqs = Equations('''
-    a_m=-0.182/second/mvolt*(v-U_m)/expm1((U_m-v)/W_m)   : hertz
-    b_m=-0.124/second/mvolt*(U_m-v)/expm1((v-U_m)/W_m)   : hertz
-    a_h=-0.015/second/mvolt*(U_h-v)/expm1((v-U_h)/W_h)   : hertz
-    b_h=-0.015/second/mvolt*(v-U_h)/expm1((U_h-v)/W_h)   : hertz
-    m_inf=a_m/(a_m+b_m)                                : 1
-    h_inf=a_h/(a_h+b_h)                                : 1
-    n_inf=1/(1+exp(-(v-U_n)/W_n))                      : 1
-    tau_m=1e-3/(a_m+b_m)/T_adj                         : second
-    tau_h=1e-3/(a_h+b_h)/T_adj                         : second
-    tau_n=4*ms/(1+exp(-(v+56.56*mvolt)/(44.14*mvolt)))/T_adj      : second
-    I_inj=I_max * TimedArray(t)                   : amp/meter**2
-    dm/dt=(m_inf-m)/tau_m                           : 1
-    dh/dt=(h_inf-h)/tau_h                           : 1
-    dn/dt=(n_inf-n)/tau_n                           : 1
-    ''')
+## ACTUAL VALUE CALCULATIONS
 
-    # I_inj=I_dc+I_ramp*t/T_ramp                      : amp/meter**2
-    # I_inj= 2*I_max-(I_max*exp((t-(0.15*second))**2/(2*0.003*(second**2))))                     : amp/meter**2
-    # I_inj=I_max * TimedArray(t)                   : amp/meter**2
+# 2 variables missing to achieve equilibrium for the HH-ECS: 
+# 1. additional leakage conductance of the sodium-channel
+# 2. I_NKP_max for the sodium-potassium pump (derived from the I_Na_inf in this script but also possible from I_K_inf and I_KCC_inf - see 2.27)
 
-    if model=='hh-ecs':
-        eqs += Equations('''
-            dn_Na_N/dt = -S_N/F*(I_Na + 3*I_NKP) : mol
-            dn_Na_E/dt = S_N/F*(I_Na + 3*I_NKP) : mol
-            dn_Cl_N/dt = S_N/F*(I_Cl + I_KCC) : mol
-            dn_Cl_E/dt = -(S_N/F*(I_Cl + I_KCC)) : mol
-            dn_K_N/dt = -S_N/F*(I_K - 2*I_NKP - I_KCC) : mol
-            dn_K_E/dt = S_N/F*(I_K - 2*I_NKP - I_KCC) : mol
-            C_Na_N = clip(C0_Na_N + n_Na_N/V_N, 0 * mM, 155 * mM) : mM
-            C_Na_E = clip(C0_Na_E + n_Na_E/V_E, 0 * mM, 155 * mM) : mM
-            C_Cl_N = clip(C0_Cl_N + n_Cl_N/V_N, 0 * mM, 133 * mM) : mM
-            C_Cl_E = clip(C0_Cl_E + n_Cl_E/V_E, 0 * mM, 133 * mM) : mM
-            C_K_N = clip(C0_K_N + n_K_N/V_N, 0 * mM, 135 * mM) : mM
-            C_K_E = clip(C0_K_E + n_K_E/V_E, 0 * mM, 135 * mM)  : mM
-            E_Na = NernstPotential(C_Na_E, C_Na_N, 1, T_exp)*volt : volt
-            E_K = NernstPotential(C_K_E, C_K_N, 1, T_exp)*volt : volt
-            E_Cl = NernstPotential(C_Cl_E, C_Cl_N, 1, T_exp)*volt : volt          
-            I_Na = g_Na*m**3*h*(v-E_Na)                       : amp/meter**2
-            I_K = g_K*n*(v-E_K)                               : amp/meter**2
-            I_Cl = g_Cl*(v-E_Cl)                              : amp/meter**2 
-            I_NKP = 0*amp/meter**2*(1 + 0.1245 * exp(-v/(10*V_T)) - 0.0052 * exp(-v/V_T) * (1 - exp(C_Na_E/(67.3*mM)))) * Hill(C_Na_N, zeta_Na, 1.5) * Hill(C_K_E, zeta_K, 1) : amp/meter**2 
-            I_KCC = g_KCC*(E_K - E_Cl) : amp/meter**2 
-            dv/dt=(I_inj - I_Na - I_K - I_Cl + I_NKP)/c_m                 : volt   
-        ''')
-    elif model == 'hh-neuron':
-        eqs += Equations('''
-            I_Na=g_Na*m**3*h*(v-E_Na)                       : amp/meter**2
-            I_K=g_K*n*(v-E_K)                               : amp/meter**2
-            I_Cl=g_Cl*(v-E_Cl)                              : amp/meter**2
-            dv/dt=(I_inj-I_Na-I_K-I_Cl)/c_m                 : volt   
-        ''')
-    else:
-        ## w/ ECS
-        pass
+## Calculations of VALUE 1 (g_Na)
+leakage_conductance = calc_leakage_conductance()
 
-    return eqs
+## Calculation of VALUE 2 (I_NKP_max) 
+I_Na_inf_calc = I_Na_inf(leakage_conductance)
+f_NaK_calc = f_NaK(-89.89025359, 1000*ThermalVoltage(37), sigma())
+Hill_Na = Hill(concentrations['C0_Na_N'], zetas['zeta_Na'], 3/2)
+Hill_K = Hill(concentrations['C0_K_E'], zetas['zeta_Na'], 1)
+
+I_NKP_max = calculate_I_NKP_max(I_Na_inf_calc, f_NaK_calc, Hill_Na, Hill_K)
+print(I_NKP_max)
+
+## Check whether the total ionic current is 0 and EQUILIBRIUM is achieved
+total_current = I_Na_inf(leakage_conductance) + I_K_inf() + I_Cl_inf() + I_NKP(-89.89025359, 37, concentrations, zetas, I_NKP_max)
+print(total_current)
 
 
 
-V_eq = calculate_resting_state_potential()
-print(f"Equilibrium (resting) potential: {V_eq:.3f} mV")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# def calculate_resting_state_potential_hhecs():
+#     amplitude_current = brentq(total_current_hhecs, -100, 50)
+#     return amplitude_current
+# amplitude = calculate_resting_state_potential_hhecs()
+# print(f"Equilibrium (resting) potential: {amplitude:.8f} ")
+# Variance_K = dn_K_N(I_K(-89.89025359, ion_equilibria['E_K']), I_NKP(-89.89025359, 37, concentrations, zetas), I_KCC(conductances, ion_equilibria), 1)
+# Variance_Na = dn_Na_N(I_Na(-89.89025359, ion_equilibria['E_Na']), I_NKP(-89.89025359, 37, concentrations, zetas), 1)
+# Variance_Cl = dn_Cl_N(I_Cl(-89.89025359, ion_equilibria['E_Cl']), I_KCC(conductances, ion_equilibria), 1)
+# current = total_current_hhecs()
+

@@ -66,7 +66,7 @@ def return_HH_equations(model = 'hh-neuron'):
             I_Na = g_Na*m**3*h*(v-E_Na)                       : amp/meter**2
             I_K = g_K*n*(v-E_K)                               : amp/meter**2
             I_Cl = g_Cl*(v-E_Cl)                              : amp/meter**2 
-            I_NKP = 0*amp/meter**2*(1 + 0.1245 * exp(-v/(10*V_T)) - 0.0052 * exp(-v/V_T) * (1 - exp(C_Na_E/(67.3*mM)))) * Hill(C_Na_N, zeta_Na, 1.5) * Hill(C_K_E, zeta_K, 1) : amp/meter**2 
+            I_NKP = 1*amp/meter**2*(1 + 0.1245 * exp(-v/(10*V_T)) - 0.0052 * exp(-v/V_T) * (1 - exp(C_Na_E/(67.3*mM)))) * Hill(C_Na_N, zeta_Na, 1.5) * Hill(C_K_E, zeta_K, 1) : amp/meter**2 
             I_KCC = g_KCC*(E_K - E_Cl) : amp/meter**2 
             dv/dt=(I_inj - I_Na - I_K - I_Cl + I_NKP)/c_m                 : volt   
         ''')
