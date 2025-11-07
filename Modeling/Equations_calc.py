@@ -62,14 +62,18 @@ def return_HH_equations(model = 'hh-neuron'):
             C_K_E = clip(C0_K_E + n_K_E/V_E, 0 * mM, 135 * mM)  : mM
             E_Na = NernstPotential(C_Na_E, C_Na_N, 1, T_exp)*volt : volt
             E_K = NernstPotential(C_K_E, C_K_N, 1, T_exp)*volt : volt
-            E_Cl = NernstPotential(C_Cl_E, C_Cl_N, 1, T_exp)*volt : volt          
+            E_Cl = NernstPotential(C_Cl_E, C_Cl_N, -1, T_exp)*volt : volt          
             I_Na = (g_Na*m**3*h + g_Na_L)*(v-E_Na)                       : amp/meter**2
             I_K = g_K*n*(v-E_K)                               : amp/meter**2
             I_Cl = g_Cl*(v-E_Cl)                              : amp/meter**2 
-            I_NKP = I_NKP_max*(1 + 0.1245 * exp(-v/(10*V_T)) - 0.0052 * exp(-v/V_T) * (1 - exp(C_Na_E/(67.3*mM)))) * Hill(C_Na_N, zeta_Na, 1.5) * Hill(C_K_E, zeta_K, 1) : amp/meter**2
-            I_NKP = I_NKP_max * F  * 1/(1 + (zeta_Na/C_Na_N)**1.5)*Hill(C_K_E, zeta_K, 1) 
-            I_KCC = g_KCC*(E_K - E_Cl) : amp/meter**2 
-            dv/dt=(I_inj - I_Na - I_K - I_Cl + I_NKP)/c_m                 : volt   
+            sigma = 1/7 * (expm1(C_Na_E/(67.3 * mM))-1)              : 1
+            f_NaK = 1/(1 + 0.1245 * exp(-0.1 * v/V_T) + 0.0365 * sigma * expm1(-v/V_T)) : 1
+            I_NKP = I_NKP_max * f_NaK * 1/(1 + (zeta_Na/C_Na_N)**1.5)*Hill(C_K_E, zeta_K, 1) : amp/meter**2
+            I_KCC = g_KCC*(E_K - E_Cl)                          : amp/meter**2           
+            dv/dt=(I_inj - I_Na - I_K - I_Cl + I_NKP)/c_m       : volt
+            Check_1 = I_Na + 3 * I_NKP                          :amp/meter**2
+            Check_2 = I_K + 2 * I_NKP - I_KCC                   :amp/meter**2
+            Check_3 = I_Cl + I_KCC                              :amp/meter**2
         ''')
     elif model == 'hh-neuron':
         eqs += Equations('''
@@ -84,7 +88,8 @@ def return_HH_equations(model = 'hh-neuron'):
 
     return eqs
 
-
+#  I_NKP = I_NKP_max*(1 + 0.1245 * exp(-v/(10*V_T)) - 0.0052 * exp(-v/V_T) * (1 - exp(C_Na_E/(67.3*mM)))) * Hill(C_Na_N, zeta_Na, 1.5) * Hill(C_K_E, zeta_K, 1) : amp/meter**2
+# f_NaK = 1/(1 + 0.1245 * exp(-0.1 * v/V_T) + 0.0365 * sigma * exp(-v/V_T))
 
 gating_variables = {
     'm': 0.01,

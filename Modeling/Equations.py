@@ -117,8 +117,8 @@ def I_Cl_inf():
     return conductances['Cl'] * (-70 - (NernstPotential(concentrations['C0_Cl_E'], concentrations['C0_Cl_N'], -1, 37)*1000))
 
 ## Calculations I_NKP_max - BASED ON THE RELATION BETWEEN I_Na_inf and I_NKP <- I_Na_inf + 3*I_NKP = 0
-def calculate_I_NKP_max(I_Na_inf, f_NaK, Hill_Na, Hill_K):
-    return -I_Na_inf/(3 * f_NaK * 1/(1 + (zetas['zeta_Na']/concentrations['C0_Na_N'])**1.5)*Hill(concentrations['C0_K_E'], zetas['zeta_K'], 1))
+def calculate_I_NKP_max(I_Na_inf, f_NaK, Hill_K):
+    return -I_Na_inf/(3 * f_NaK * 1/(1 + (zetas['zeta_Na']/concentrations['C0_Na_N'])**1.5)*Hill_K)
 
 ## Consistency equation for the calculation of the necessary leakage conductance of the sodium-channel
 def equilibrium_current(leakage_conductance):
@@ -145,6 +145,8 @@ conductances['g_KCC'] = conductance_KCC(-70, ion_equilibria['E_Cl'], ion_equilib
 
 ## ACTUAL VALUE CALCULATIONS
 
+print(conductances['g_KCC'])
+
 # 2 variables missing to achieve equilibrium for the HH-ECS: 
 # 1. additional leakage conductance of the sodium-channel
 # 2. I_NKP_max for the sodium-potassium pump (derived from the I_Na_inf in this script but also possible from I_K_inf and I_KCC_inf - see 2.27)
@@ -158,42 +160,38 @@ f_NaK_calc = f_NaK(-70, V_T, sigma())
 Hill_Na = Hill(concentrations['C0_Na_N'], zetas['zeta_Na'], 1.5)
 Hill_K = Hill(concentrations['C0_K_E'], zetas['zeta_K'], 1)
 
-I_NKP_max = calculate_I_NKP_max(I_Na_inf_calc, f_NaK_calc, Hill_Na, Hill_K)
+I_NKP_max = calculate_I_NKP_max(I_Na_inf_calc, f_NaK_calc, Hill_K)
 
 print(f'I_NKP_max: {I_NKP_max}')
-print(f'I_Na_inf: {I_Na_inf_calc}')
-I_K_inf_calc = I_K_inf()
-print(f'I_K_inf: {I_K_inf_calc}')
-I_Cl_inf_calc = I_Cl_inf()
-print(f'I_Cl_inf {I_Cl_inf_calc}')
 
-CURRENT_CHECK_2 = I_Na_inf(leakage_conductance) + 3 * I_NKP(I_NKP_max, f_NaK(-70, V_T, sigma()), concentrations, zetas)
+
+
+#### CHECKS for error fixing
+
+## CURRENT-CHECK_1 -> expected to be 0 as I_Na_inf = - 3 * I_NKP
+CURRENT_CHECK_1 = I_Na_inf(leakage_conductance) + 3 * I_NKP(I_NKP_max, f_NaK(-70, V_T, sigma()), concentrations, zetas)
+print(f'CURRENT CHECK 1: {CURRENT_CHECK_1}')
+
+## CURRENT-CHECK_2 -> expected to be 0 as I_K_inf = 2 * I_NKP + I_KCC
+CURRENT_CHECK_2 = I_K_inf() - 2 * I_NKP(I_NKP_max, f_NaK(-70, V_T, sigma()), concentrations, zetas) - I_KCC(conductances, ion_equilibria)
 print(f'CURRENT CHECK 2: {CURRENT_CHECK_2}')
 
+## CURRENT-CHECK_2 -> expected to be 0 as I_K_inf = 2 * I_NKP + I_KCC
+CURRENT_CHECK_3 = I_Cl_inf() + I_KCC(conductances, ion_equilibria)
+g_KCC = conductances['g_KCC']
+print(f'g_KCC: {g_KCC}')
+print(f'CURRENT CHECK 3: {CURRENT_CHECK_3}')
+
+
+## TOTAL CURRENT CHECK
 ## Check whether the total ionic current is 0 and EQUILIBRIUM is achieved
 total_current = I_Na_inf(leakage_conductance) + I_K_inf() + I_Cl_inf() + I_NKP(I_NKP_max, f_NaK(-70, V_T, sigma()), concentrations, zetas)
 print(f'total current: {total_current}')
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+print('NERNST Cl')
+print(NernstPotential(concentrations['C0_Cl_E'], concentrations['C0_Cl_N'], -1, 37))
+print('NERNST K')
+print(NernstPotential(concentrations['C0_K_E'], concentrations['C0_K_N'], 1, 37))
 
 
 
