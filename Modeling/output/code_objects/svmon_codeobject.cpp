@@ -8,10 +8,16 @@
 #include<fstream>
 #include<climits>
 #include "gsl_const_mksa.h"
+#include "math.h"
 
 ////// SUPPORT CODE ///////
 namespace {
         
+    #include <math.h>
+    double Hill(double x,double K,double n)
+    {
+        return pow(x,n)/(pow(x,n)+pow(K,n));
+    };
     #include <gsl/gsl_const_mksa.h>
     const double R = GSL_CONST_MKSA_MOLAR_GAS; 
     const double F = GSL_CONST_MKSA_FARADAY;
@@ -156,45 +162,66 @@ const double C0_K_E = 3.0;
 const double C0_K_N = 130.0;
 const double C0_Na_E = 145.0;
 const double C0_Na_N = 10.0;
+const double I_NKP_max = 0.07071461769188153;
 const size_t _numN = 1;
 const int64_t T_exp = 37;
 const double V_E = 5e-16;
 const double V_N = 5e-16;
-const size_t _num____source_I_Cl_hh_E_Cl_hh_C_Cl_E_hh_n_Cl_E = 1;
-const size_t _num____source_I_Cl_hh_E_Cl_hh_C_Cl_N_hh_n_Cl_N = 1;
+const double V_T = 0.003188413306993716;
+const size_t _num_____source_I_NKP_hh_f_NaK_hh_sigma_hh_C_Na_E_hh_n_Na_E = 1;
+const size_t _num____source_I_Cl_L_hh_E_Cl_hh_C_Cl_E_hh_n_Cl_E = 1;
+const size_t _num____source_I_Cl_L_hh_E_Cl_hh_C_Cl_N_hh_n_Cl_N = 1;
+const size_t _num____source_I_KCC_hh_E_Cl_hh_C_Cl_E_hh_n_Cl_E = 1;
+const size_t _num____source_I_KCC_hh_E_Cl_hh_C_Cl_N_hh_n_Cl_N = 1;
+const size_t _num____source_I_KCC_hh_E_K_hh_C_K_E_hh_n_K_E = 1;
+const size_t _num____source_I_KCC_hh_E_K_hh_C_K_N_hh_n_K_N = 1;
 const size_t _num____source_I_K_hh_E_K_hh_C_K_E_hh_n_K_E = 1;
 const size_t _num____source_I_K_hh_E_K_hh_C_K_N_hh_n_K_N = 1;
+const size_t _num____source_I_Na_L_hh_E_Na_hh_C_Na_E_hh_n_Na_E = 1;
+const size_t _num____source_I_Na_L_hh_E_Na_hh_C_Na_N_hh_n_Na_N = 1;
 const size_t _num____source_I_Na_hh_E_Na_hh_C_Na_E_hh_n_Na_E = 1;
 const size_t _num____source_I_Na_hh_E_Na_hh_C_Na_N_hh_n_Na_N = 1;
 const size_t _num___source_E_Cl_hh_C_Cl_E_hh_n_Cl_E = 1;
 const size_t _num___source_E_Cl_hh_C_Cl_N_hh_n_Cl_N = 1;
+const size_t _num___source_E_K_hh_C_K_E_hh_n_K_E = 1;
+const size_t _num___source_E_K_hh_C_K_N_hh_n_K_N = 1;
+const size_t _num___source_E_Na_hh_C_Na_E_hh_n_Na_E = 1;
+const size_t _num___source_E_Na_hh_C_Na_N_hh_n_Na_N = 1;
+const size_t _num___source_I_NKP_hh_C_K_E_hh_n_K_E = 1;
+const size_t _num___source_I_NKP_hh_C_Na_N_hh_n_Na_N = 1;
+const size_t _num___source_I_NKP_hh_f_NaK_hh_v = 1;
 const size_t _num__source_C_Cl_N_hh_n_Cl_N = 1;
 const size_t _num__source_C_K_N_hh_n_K_N = 1;
 const size_t _num__source_C_Na_N_hh_n_Na_N = 1;
-const size_t _num__source_I_Cl_hh_v = 1;
+const size_t _num__source_I_Cl_L_hh_v = 1;
 const size_t _num__source_I_K_hh_n = 1;
 const size_t _num__source_I_K_hh_v = 1;
+const size_t _num__source_I_Na_L_hh_v = 1;
 const size_t _num__source_I_Na_hh_h = 1;
 const size_t _num__source_I_Na_hh_m = 1;
 const size_t _num__source_I_Na_hh_v = 1;
 const size_t _num_clock_t = 1;
 const size_t _num_indices = 1;
 const size_t _num_source_v = 1;
-const double g_Cl = 3.3799999999999994;
-const double g_K = 6380.0;
+const double g_Cl_L = 0.49999999999999994;
+const double g_K = 6929.999999999999;
+const double g_KCC = - 0.0454665638343149;
 const double g_Na = 20400.0;
+const double g_Na_L = 0.3270276859728401;
 const double mM = true;
 double* const _array_svmon_t = _dynamic_array_svmon_t.empty()? 0 : &_dynamic_array_svmon_t[0];
 const size_t _numt = _dynamic_array_svmon_t.size();
 const double volt = true;
+const double zeta_K = 0.2;
+const double zeta_Na = 13.0;
     ///// POINTERS ////////////
         
     int32_t*   _ptr_array_svmon_N = _array_svmon_N;
+    double*   _ptr_array_hh_n_Na_E = _array_hh_n_Na_E;
     double*   _ptr_array_hh_n_Cl_E = _array_hh_n_Cl_E;
     double*   _ptr_array_hh_n_Cl_N = _array_hh_n_Cl_N;
     double*   _ptr_array_hh_n_K_E = _array_hh_n_K_E;
     double*   _ptr_array_hh_n_K_N = _array_hh_n_K_N;
-    double*   _ptr_array_hh_n_Na_E = _array_hh_n_Na_E;
     double*   _ptr_array_hh_n_Na_N = _array_hh_n_Na_N;
     double*   _ptr_array_hh_v = _array_hh_v;
     double*   _ptr_array_hh_n = _array_hh_n;
@@ -213,19 +240,27 @@ const double volt = true;
     _dynamic_array_svmon_C_K_N.resize(_new_size, _num_indices);
     _dynamic_array_svmon_C_Na_N.resize(_new_size, _num_indices);
     _dynamic_array_svmon_E_Cl.resize(_new_size, _num_indices);
-    _dynamic_array_svmon_I_Cl.resize(_new_size, _num_indices);
+    _dynamic_array_svmon_E_K.resize(_new_size, _num_indices);
+    _dynamic_array_svmon_E_Na.resize(_new_size, _num_indices);
+    _dynamic_array_svmon_I_Cl_L.resize(_new_size, _num_indices);
     _dynamic_array_svmon_I_K.resize(_new_size, _num_indices);
+    _dynamic_array_svmon_I_KCC.resize(_new_size, _num_indices);
     _dynamic_array_svmon_I_Na.resize(_new_size, _num_indices);
+    _dynamic_array_svmon_I_Na_L.resize(_new_size, _num_indices);
+    _dynamic_array_svmon_I_NKP.resize(_new_size, _num_indices);
     _dynamic_array_svmon_v.resize(_new_size, _num_indices);
 
     // scalar code
     const size_t _vectorisation_idx = -1;
         
-    const double _lio_1 = 1.0f*true/V_N;
-    const double _lio_2 = 133.0 * mM;
-    const double _lio_3 = 155.0 * mM;
-    const double _lio_4 = 135.0 * mM;
-    const double _lio_5 = 1.0f*true/V_E;
+    const double _lio_1 = 1.0f*true/V_E;
+    const double _lio_2 = 135.0 * mM;
+    const double _lio_3 = 1.0f*true/V_N;
+    const double _lio_4 = 133.0 * mM;
+    const double _lio_5 = 155.0 * mM;
+    const double _lio_6 = 1.0f*0.01485884101040119/mM;
+    const double _lio_7 = 1.0f*(- 0.1)/V_T;
+    const double _lio_8 = 1.0f*true/V_T;
 
 
     #pragma omp parallel for schedule(static)
@@ -235,59 +270,107 @@ const double volt = true;
         const size_t _idx = _ptr_array_svmon__indices[_i];
         const size_t _vectorisation_idx = _idx;
                 
-        const double ____source_I_Cl_hh_E_Cl_hh_C_Cl_E_hh_n_Cl_E = _ptr_array_hh_n_Cl_E[_idx];
-        const double ____source_I_Cl_hh_E_Cl_hh_C_Cl_N_hh_n_Cl_N = _ptr_array_hh_n_Cl_N[_idx];
+        const double _____source_I_NKP_hh_f_NaK_hh_sigma_hh_C_Na_E_hh_n_Na_E = _ptr_array_hh_n_Na_E[_idx];
+        const double ____source_I_Cl_L_hh_E_Cl_hh_C_Cl_E_hh_n_Cl_E = _ptr_array_hh_n_Cl_E[_idx];
+        const double ____source_I_Cl_L_hh_E_Cl_hh_C_Cl_N_hh_n_Cl_N = _ptr_array_hh_n_Cl_N[_idx];
+        const double ____source_I_KCC_hh_E_Cl_hh_C_Cl_E_hh_n_Cl_E = _ptr_array_hh_n_Cl_E[_idx];
+        const double ____source_I_KCC_hh_E_Cl_hh_C_Cl_N_hh_n_Cl_N = _ptr_array_hh_n_Cl_N[_idx];
+        const double ____source_I_KCC_hh_E_K_hh_C_K_E_hh_n_K_E = _ptr_array_hh_n_K_E[_idx];
+        const double ____source_I_KCC_hh_E_K_hh_C_K_N_hh_n_K_N = _ptr_array_hh_n_K_N[_idx];
         const double ____source_I_K_hh_E_K_hh_C_K_E_hh_n_K_E = _ptr_array_hh_n_K_E[_idx];
         const double ____source_I_K_hh_E_K_hh_C_K_N_hh_n_K_N = _ptr_array_hh_n_K_N[_idx];
+        const double ____source_I_Na_L_hh_E_Na_hh_C_Na_E_hh_n_Na_E = _ptr_array_hh_n_Na_E[_idx];
+        const double ____source_I_Na_L_hh_E_Na_hh_C_Na_N_hh_n_Na_N = _ptr_array_hh_n_Na_N[_idx];
         const double ____source_I_Na_hh_E_Na_hh_C_Na_E_hh_n_Na_E = _ptr_array_hh_n_Na_E[_idx];
         const double ____source_I_Na_hh_E_Na_hh_C_Na_N_hh_n_Na_N = _ptr_array_hh_n_Na_N[_idx];
         const double ___source_E_Cl_hh_C_Cl_E_hh_n_Cl_E = _ptr_array_hh_n_Cl_E[_idx];
         const double ___source_E_Cl_hh_C_Cl_N_hh_n_Cl_N = _ptr_array_hh_n_Cl_N[_idx];
+        const double ___source_E_K_hh_C_K_E_hh_n_K_E = _ptr_array_hh_n_K_E[_idx];
+        const double ___source_E_K_hh_C_K_N_hh_n_K_N = _ptr_array_hh_n_K_N[_idx];
+        const double ___source_E_Na_hh_C_Na_E_hh_n_Na_E = _ptr_array_hh_n_Na_E[_idx];
+        const double ___source_E_Na_hh_C_Na_N_hh_n_Na_N = _ptr_array_hh_n_Na_N[_idx];
+        const double ___source_I_NKP_hh_C_K_E_hh_n_K_E = _ptr_array_hh_n_K_E[_idx];
+        const double ___source_I_NKP_hh_C_Na_N_hh_n_Na_N = _ptr_array_hh_n_Na_N[_idx];
+        const double ___source_I_NKP_hh_f_NaK_hh_v = _ptr_array_hh_v[_idx];
         const double __source_C_Cl_N_hh_n_Cl_N = _ptr_array_hh_n_Cl_N[_idx];
         const double __source_C_K_N_hh_n_K_N = _ptr_array_hh_n_K_N[_idx];
         const double __source_C_Na_N_hh_n_Na_N = _ptr_array_hh_n_Na_N[_idx];
-        const double __source_I_Cl_hh_v = _ptr_array_hh_v[_idx];
+        const double __source_I_Cl_L_hh_v = _ptr_array_hh_v[_idx];
         const double __source_I_K_hh_n = _ptr_array_hh_n[_idx];
         const double __source_I_K_hh_v = _ptr_array_hh_v[_idx];
+        const double __source_I_Na_L_hh_v = _ptr_array_hh_v[_idx];
         const double __source_I_Na_hh_h = _ptr_array_hh_h[_idx];
         const double __source_I_Na_hh_m = _ptr_array_hh_m[_idx];
         const double __source_I_Na_hh_v = _ptr_array_hh_v[_idx];
         const double _source_v = _ptr_array_hh_v[_idx];
         const double _to_record_v = _source_v;
-        const double _source_C_Cl_N = _clip(C0_Cl_N + (_lio_1 * __source_C_Cl_N_hh_n_Cl_N), false, _lio_2);
-        const double _to_record_C_Cl_N = _source_C_Cl_N;
-        const double _source_C_Na_N = _clip(C0_Na_N + (_lio_1 * __source_C_Na_N_hh_n_Na_N), false, _lio_3);
-        const double _to_record_C_Na_N = _source_C_Na_N;
-        const double _source_C_K_N = _clip(C0_K_N + (_lio_1 * __source_C_K_N_hh_n_K_N), false, _lio_4);
-        const double _to_record_C_K_N = _source_C_K_N;
-        const double ___source_I_K_hh_E_K_hh_C_K_E = _clip(C0_K_E + (_lio_5 * ____source_I_K_hh_E_K_hh_C_K_E_hh_n_K_E), false, _lio_4);
-        const double ___source_I_K_hh_E_K_hh_C_K_N = _clip(C0_K_N + (_lio_1 * ____source_I_K_hh_E_K_hh_C_K_N_hh_n_K_N), false, _lio_4);
-        const double __source_I_K_hh_E_K = volt * NernstPotential(___source_I_K_hh_E_K_hh_C_K_E, ___source_I_K_hh_E_K_hh_C_K_N, true, T_exp);
-        const double _source_I_K = g_K * (__source_I_K_hh_n * (__source_I_K_hh_v - __source_I_K_hh_E_K));
-        const double _to_record_I_K = _source_I_K;
-        const double ___source_I_Na_hh_E_Na_hh_C_Na_E = _clip(C0_Na_E + (_lio_5 * ____source_I_Na_hh_E_Na_hh_C_Na_E_hh_n_Na_E), false, _lio_3);
-        const double ___source_I_Na_hh_E_Na_hh_C_Na_N = _clip(C0_Na_N + (_lio_1 * ____source_I_Na_hh_E_Na_hh_C_Na_N_hh_n_Na_N), false, _lio_3);
+        const double __source_E_K_hh_C_K_E = _clip(C0_K_E + (_lio_1 * ___source_E_K_hh_C_K_E_hh_n_K_E), false, _lio_2);
+        const double __source_E_K_hh_C_K_N = _clip(C0_K_N + (_lio_3 * ___source_E_K_hh_C_K_N_hh_n_K_N), false, _lio_2);
+        const double _source_E_K = volt * NernstPotential(__source_E_K_hh_C_K_E, __source_E_K_hh_C_K_N, true, T_exp);
+        const double _to_record_E_K = _source_E_K;
+        const double __source_E_Cl_hh_C_Cl_E = _clip(C0_Cl_E + (_lio_1 * ___source_E_Cl_hh_C_Cl_E_hh_n_Cl_E), false, _lio_4);
+        const double __source_E_Cl_hh_C_Cl_N = _clip(C0_Cl_N + (_lio_3 * ___source_E_Cl_hh_C_Cl_N_hh_n_Cl_N), false, _lio_4);
+        const double _source_E_Cl = volt * NernstPotential(__source_E_Cl_hh_C_Cl_E, __source_E_Cl_hh_C_Cl_N, - true, T_exp);
+        const double _to_record_E_Cl = _source_E_Cl;
+        const double __source_E_Na_hh_C_Na_E = _clip(C0_Na_E + (_lio_1 * ___source_E_Na_hh_C_Na_E_hh_n_Na_E), false, _lio_5);
+        const double __source_E_Na_hh_C_Na_N = _clip(C0_Na_N + (_lio_3 * ___source_E_Na_hh_C_Na_N_hh_n_Na_N), false, _lio_5);
+        const double _source_E_Na = volt * NernstPotential(__source_E_Na_hh_C_Na_E, __source_E_Na_hh_C_Na_N, true, T_exp);
+        const double _to_record_E_Na = _source_E_Na;
+        const double ___source_I_Na_hh_E_Na_hh_C_Na_E = _clip(C0_Na_E + (_lio_1 * ____source_I_Na_hh_E_Na_hh_C_Na_E_hh_n_Na_E), false, _lio_5);
+        const double ___source_I_Na_hh_E_Na_hh_C_Na_N = _clip(C0_Na_N + (_lio_3 * ____source_I_Na_hh_E_Na_hh_C_Na_N_hh_n_Na_N), false, _lio_5);
         const double __source_I_Na_hh_E_Na = volt * NernstPotential(___source_I_Na_hh_E_Na_hh_C_Na_E, ___source_I_Na_hh_E_Na_hh_C_Na_N, true, T_exp);
         const double _source_I_Na = g_Na * (((_brian_pow(__source_I_Na_hh_m, 3)) * __source_I_Na_hh_h) * (__source_I_Na_hh_v - __source_I_Na_hh_E_Na));
         const double _to_record_I_Na = _source_I_Na;
-        const double ___source_I_Cl_hh_E_Cl_hh_C_Cl_E = _clip(C0_Cl_E + (_lio_5 * ____source_I_Cl_hh_E_Cl_hh_C_Cl_E_hh_n_Cl_E), false, _lio_2);
-        const double ___source_I_Cl_hh_E_Cl_hh_C_Cl_N = _clip(C0_Cl_N + (_lio_1 * ____source_I_Cl_hh_E_Cl_hh_C_Cl_N_hh_n_Cl_N), false, _lio_2);
-        const double __source_I_Cl_hh_E_Cl = volt * NernstPotential(___source_I_Cl_hh_E_Cl_hh_C_Cl_E, ___source_I_Cl_hh_E_Cl_hh_C_Cl_N, true, T_exp);
-        const double _source_I_Cl = g_Cl * (__source_I_Cl_hh_v - __source_I_Cl_hh_E_Cl);
-        const double _to_record_I_Cl = _source_I_Cl;
-        const double __source_E_Cl_hh_C_Cl_E = _clip(C0_Cl_E + (_lio_5 * ___source_E_Cl_hh_C_Cl_E_hh_n_Cl_E), false, _lio_2);
-        const double __source_E_Cl_hh_C_Cl_N = _clip(C0_Cl_N + (_lio_1 * ___source_E_Cl_hh_C_Cl_N_hh_n_Cl_N), false, _lio_2);
-        const double _source_E_Cl = volt * NernstPotential(__source_E_Cl_hh_C_Cl_E, __source_E_Cl_hh_C_Cl_N, true, T_exp);
-        const double _to_record_E_Cl = _source_E_Cl;
+        const double ___source_I_Na_L_hh_E_Na_hh_C_Na_E = _clip(C0_Na_E + (_lio_1 * ____source_I_Na_L_hh_E_Na_hh_C_Na_E_hh_n_Na_E), false, _lio_5);
+        const double ___source_I_Na_L_hh_E_Na_hh_C_Na_N = _clip(C0_Na_N + (_lio_3 * ____source_I_Na_L_hh_E_Na_hh_C_Na_N_hh_n_Na_N), false, _lio_5);
+        const double __source_I_Na_L_hh_E_Na = volt * NernstPotential(___source_I_Na_L_hh_E_Na_hh_C_Na_E, ___source_I_Na_L_hh_E_Na_hh_C_Na_N, true, T_exp);
+        const double _source_I_Na_L = g_Na_L * (__source_I_Na_L_hh_v - __source_I_Na_L_hh_E_Na);
+        const double _to_record_I_Na_L = _source_I_Na_L;
+        const double ___source_I_K_hh_E_K_hh_C_K_E = _clip(C0_K_E + (_lio_1 * ____source_I_K_hh_E_K_hh_C_K_E_hh_n_K_E), false, _lio_2);
+        const double ___source_I_K_hh_E_K_hh_C_K_N = _clip(C0_K_N + (_lio_3 * ____source_I_K_hh_E_K_hh_C_K_N_hh_n_K_N), false, _lio_2);
+        const double __source_I_K_hh_E_K = volt * NernstPotential(___source_I_K_hh_E_K_hh_C_K_E, ___source_I_K_hh_E_K_hh_C_K_N, true, T_exp);
+        const double _source_I_K = g_K * (__source_I_K_hh_n * (__source_I_K_hh_v - __source_I_K_hh_E_K));
+        const double _to_record_I_K = _source_I_K;
+        const double ___source_I_Cl_L_hh_E_Cl_hh_C_Cl_E = _clip(C0_Cl_E + (_lio_1 * ____source_I_Cl_L_hh_E_Cl_hh_C_Cl_E_hh_n_Cl_E), false, _lio_4);
+        const double ___source_I_Cl_L_hh_E_Cl_hh_C_Cl_N = _clip(C0_Cl_N + (_lio_3 * ____source_I_Cl_L_hh_E_Cl_hh_C_Cl_N_hh_n_Cl_N), false, _lio_4);
+        const double __source_I_Cl_L_hh_E_Cl = volt * NernstPotential(___source_I_Cl_L_hh_E_Cl_hh_C_Cl_E, ___source_I_Cl_L_hh_E_Cl_hh_C_Cl_N, - true, T_exp);
+        const double _source_I_Cl_L = g_Cl_L * (__source_I_Cl_L_hh_v - __source_I_Cl_L_hh_E_Cl);
+        const double _to_record_I_Cl_L = _source_I_Cl_L;
+        const double ___source_I_KCC_hh_E_Cl_hh_C_Cl_E = _clip(C0_Cl_E + (_lio_1 * ____source_I_KCC_hh_E_Cl_hh_C_Cl_E_hh_n_Cl_E), false, _lio_4);
+        const double ___source_I_KCC_hh_E_Cl_hh_C_Cl_N = _clip(C0_Cl_N + (_lio_3 * ____source_I_KCC_hh_E_Cl_hh_C_Cl_N_hh_n_Cl_N), false, _lio_4);
+        const double ___source_I_KCC_hh_E_K_hh_C_K_E = _clip(C0_K_E + (_lio_1 * ____source_I_KCC_hh_E_K_hh_C_K_E_hh_n_K_E), false, _lio_2);
+        const double ___source_I_KCC_hh_E_K_hh_C_K_N = _clip(C0_K_N + (_lio_3 * ____source_I_KCC_hh_E_K_hh_C_K_N_hh_n_K_N), false, _lio_2);
+        const double __source_I_KCC_hh_E_Cl = volt * NernstPotential(___source_I_KCC_hh_E_Cl_hh_C_Cl_E, ___source_I_KCC_hh_E_Cl_hh_C_Cl_N, - true, T_exp);
+        const double __source_I_KCC_hh_E_K = volt * NernstPotential(___source_I_KCC_hh_E_K_hh_C_K_E, ___source_I_KCC_hh_E_K_hh_C_K_N, true, T_exp);
+        const double _source_I_KCC = g_KCC * (__source_I_KCC_hh_E_K - __source_I_KCC_hh_E_Cl);
+        const double _to_record_I_KCC = _source_I_KCC;
+        const double ____source_I_NKP_hh_f_NaK_hh_sigma_hh_C_Na_E = _clip(C0_Na_E + (_lio_1 * _____source_I_NKP_hh_f_NaK_hh_sigma_hh_C_Na_E_hh_n_Na_E), false, _lio_5);
+        const double __source_I_NKP_hh_C_K_E = _clip(C0_K_E + (_lio_1 * ___source_I_NKP_hh_C_K_E_hh_n_K_E), false, _lio_2);
+        const double __source_I_NKP_hh_C_Na_N = _clip(C0_Na_N + (_lio_3 * ___source_I_NKP_hh_C_Na_N_hh_n_Na_N), false, _lio_5);
+        const double ___source_I_NKP_hh_f_NaK_hh_sigma = 0.14285714285714285 * ((- true) + expm1(_lio_6 * ____source_I_NKP_hh_f_NaK_hh_sigma_hh_C_Na_E));
+        const double __source_I_NKP_hh_f_NaK = 1.0f*true/(true + ((0.1245 * exp(_lio_7 * ___source_I_NKP_hh_f_NaK_hh_v)) + (0.0365 * (___source_I_NKP_hh_f_NaK_hh_sigma * expm1(_lio_8 * (- ___source_I_NKP_hh_f_NaK_hh_v))))));
+        const double _source_I_NKP = 1.0f*(I_NKP_max * (__source_I_NKP_hh_f_NaK * Hill(__source_I_NKP_hh_C_K_E, zeta_K, true)))/(true + (_brian_pow(1.0f*zeta_Na/__source_I_NKP_hh_C_Na_N, 1.5)));
+        const double _to_record_I_NKP = _source_I_NKP;
+        const double _source_C_Cl_N = _clip(C0_Cl_N + (_lio_3 * __source_C_Cl_N_hh_n_Cl_N), false, _lio_4);
+        const double _to_record_C_Cl_N = _source_C_Cl_N;
+        const double _source_C_Na_N = _clip(C0_Na_N + (_lio_3 * __source_C_Na_N_hh_n_Na_N), false, _lio_5);
+        const double _to_record_C_Na_N = _source_C_Na_N;
+        const double _source_C_K_N = _clip(C0_K_N + (_lio_3 * __source_C_K_N_hh_n_K_N), false, _lio_2);
+        const double _to_record_C_K_N = _source_C_K_N;
 
 
         _dynamic_array_svmon_C_Cl_N(_new_size-1, _i) = _to_record_C_Cl_N;
         _dynamic_array_svmon_C_K_N(_new_size-1, _i) = _to_record_C_K_N;
         _dynamic_array_svmon_C_Na_N(_new_size-1, _i) = _to_record_C_Na_N;
         _dynamic_array_svmon_E_Cl(_new_size-1, _i) = _to_record_E_Cl;
-        _dynamic_array_svmon_I_Cl(_new_size-1, _i) = _to_record_I_Cl;
+        _dynamic_array_svmon_E_K(_new_size-1, _i) = _to_record_E_K;
+        _dynamic_array_svmon_E_Na(_new_size-1, _i) = _to_record_E_Na;
+        _dynamic_array_svmon_I_Cl_L(_new_size-1, _i) = _to_record_I_Cl_L;
         _dynamic_array_svmon_I_K(_new_size-1, _i) = _to_record_I_K;
+        _dynamic_array_svmon_I_KCC(_new_size-1, _i) = _to_record_I_KCC;
         _dynamic_array_svmon_I_Na(_new_size-1, _i) = _to_record_I_Na;
+        _dynamic_array_svmon_I_Na_L(_new_size-1, _i) = _to_record_I_Na_L;
+        _dynamic_array_svmon_I_NKP(_new_size-1, _i) = _to_record_I_NKP;
         _dynamic_array_svmon_v(_new_size-1, _i) = _to_record_v;
     }
 

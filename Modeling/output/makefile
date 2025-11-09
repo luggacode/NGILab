@@ -1,7 +1,7 @@
 PROGRAM = main
 
-SRCS = brianlib/randomkit/randomkit.c code_objects/after_run_hh_spike_thresholder_codeobject.cpp code_objects/hh_spike_thresholder_codeobject.cpp code_objects/hh_stateupdater_codeobject.cpp code_objects/svmon_codeobject.cpp main.cpp network.cpp objects.cpp run.cpp synapses_classes.cpp
-H_SRCS = brianlib/clocks.h brianlib/common_math.h brianlib/dynamic_array.h code_objects/after_run_hh_spike_thresholder_codeobject.h code_objects/hh_spike_thresholder_codeobject.h code_objects/hh_stateupdater_codeobject.h code_objects/svmon_codeobject.h network.h objects.h run.h synapses_classes.h
+SRCS = brianlib/randomkit/randomkit.c code_objects/after_run_hh_1_spike_thresholder_codeobject.cpp code_objects/hh_1_spike_resetter_codeobject.cpp code_objects/hh_1_spike_thresholder_codeobject.cpp code_objects/hh_1_stateupdater_codeobject.cpp code_objects/svmon_codeobject_1.cpp main.cpp network.cpp objects.cpp run.cpp synapses_classes.cpp
+H_SRCS = brianlib/clocks.h brianlib/common_math.h brianlib/dynamic_array.h code_objects/after_run_hh_1_spike_thresholder_codeobject.h code_objects/hh_1_spike_resetter_codeobject.h code_objects/hh_1_spike_thresholder_codeobject.h code_objects/hh_1_stateupdater_codeobject.h code_objects/svmon_codeobject_1.h network.h objects.h run.h synapses_classes.h
 OBJS = ${SRCS:.cpp=.o}
 OBJS := ${OBJS:.c=.o}
 OPTIMISATIONS = -Ibrianlib/randomkit -I/opt/anaconda3/envs/Brian2_NGILab/include -I/opt/anaconda3/envs/Brian2_NGILab/include/gsl/ -I/opt/anaconda3/envs/Brian2_NGILab/include/gsl/ -w -O3 -ffast-math -fno-finite-math-only -march=native -std=c++11
