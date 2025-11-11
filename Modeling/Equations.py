@@ -141,6 +141,7 @@ def calc_leakage_conductance():
     leakage_conductance = brentq(equilibrium_current, 0, 50000)
     return leakage_conductance
 
+
 conductances['g_KCC'] = conductance_KCC(-70, ion_equilibria['E_Cl'], ion_equilibria['E_K'], conductances['Cl'])
 
 ## ACTUAL VALUE CALCULATIONS
@@ -153,6 +154,7 @@ print(conductances['g_KCC'])
 
 ## Calculations of VALUE 1 (g_Na)
 leakage_conductance = calc_leakage_conductance()
+
 
 ## Calculation of VALUE 2 (I_NKP_max) 
 I_Na_inf_calc = I_Na_inf(leakage_conductance)
@@ -176,11 +178,15 @@ print(f'CURRENT CHECK 1: {CURRENT_CHECK_1}')
 CURRENT_CHECK_2 = I_K_inf() - 2 * I_NKP(I_NKP_max, f_NaK(-70, V_T, sigma()), concentrations, zetas) - I_KCC(conductances, ion_equilibria)
 print(f'CURRENT CHECK 2: {CURRENT_CHECK_2}')
 
-## CURRENT-CHECK_2 -> expected to be 0 as I_K_inf = 2 * I_NKP + I_KCC
+## CURRENT-CHECK_3 -> expected to be 0 as I_K_inf = 2 * I_NKP + I_KCC
 CURRENT_CHECK_3 = I_Cl_inf() + I_KCC(conductances, ion_equilibria)
 g_KCC = conductances['g_KCC']
 print(f'g_KCC: {g_KCC}')
 print(f'CURRENT CHECK 3: {CURRENT_CHECK_3}')
+
+## POTENIAL_CHECK -> expected to show that the calculated conductance matches the potential
+POTENTIAL_CHECK = -I_KCC(conductances, ion_equilibria)/conductances['Cl'] + ion_equilibria['E_Cl']
+print(f'POTENTIAL CHECK: {POTENTIAL_CHECK}')
 
 
 ## TOTAL CURRENT CHECK
