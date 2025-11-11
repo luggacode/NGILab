@@ -85,6 +85,18 @@ def return_HH_equations(model = 'hh-neuron'):
             I_Cl_L=g_Cl*(v-E_Cl)                              : amp/meter**2
             dv/dt=(I_inj-I_Na-I_K-I_Cl_L)/c_m                 : volt   
         ''')
+
+    elif model == 'hh-neuron-synapse':
+        eqs += Equations('''
+            I_Na=g_Na*m**3*h*(v-E_Na)                       : amp/meter**2
+            I_K=g_K*n*(v-E_K)                               : amp/meter**2
+            I_Cl_L=g_Cl*(v-E_Cl)                              : amp/meter**2
+            dv/dt=(I_inj-I_Na-I_K-I_Cl_L-I_syn)/c_m                 : volt   
+            dr/dt = (-r + x_syn)/tau_r_x                    : 1
+            dx_syn/dt = (-x_syn)/tau_x                      : 1
+            g_syn                               : amp/meter**2
+            I_syn = g_syn*(v - E_syn)                                           : amp/meter**2
+        ''')
     else:
         ## w/ ECS
         pass
