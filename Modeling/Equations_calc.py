@@ -30,10 +30,10 @@ def calculate_cell_potential(gate, g):
 def return_HH_equations(model = 'hh-neuron'):
     
     eqs = Equations('''
-    a_m=-0.182/second/mvolt*(v-U_m)/expm1((U_m-v)/W_m)   : hertz
-    b_m=-0.124/second/mvolt*(U_m-v)/expm1((v-U_m)/W_m)   : hertz
-    a_h=-0.015/second/mvolt*(U_h-v)/expm1((v-U_h)/W_h)   : hertz
-    b_h=-0.015/second/mvolt*(v-U_h)/expm1((U_h-v)/W_h)   : hertz
+    a_m=-0.182/second/mvolt*(v-U_m)/(expm1((U_m-v)/W_m))   : hertz
+    b_m=-0.124/second/mvolt*(U_m-v)/(expm1((v-U_m)/W_m))   : hertz
+    a_h=-0.015/second/mvolt*(U_h-v)/(expm1((v-U_h)/W_h))   : hertz
+    b_h=-0.015/second/mvolt*(v-U_h)/(expm1((U_h-v)/W_h))   : hertz
     m_inf=a_m/(a_m+b_m)                                : 1
     h_inf=a_h/(a_h+b_h)                                : 1
     n_inf=1/(1+exp(-(v-U_n)/W_n))                      : 1
@@ -69,9 +69,9 @@ def return_HH_equations(model = 'hh-neuron'):
             I_Na_L = g_Na_L * (v-E_Na)                          : amp/meter**2 
             I_K_L = g_K_L * (v-E_K)                         : amp/meter**2 
             I_L = I_Na_L + I_Cl_L + I_K_L                     : amp/meter**2 
-            sigma = 1/7 * (expm1(C_Na_E/(67.3 * mM))-1)              : 1
-            f_NaK = 1/(1 + 0.1245 * exp(-0.1 * v/V_T) + 0.0365 * sigma * expm1(-v/V_T)) : 1
-            I_NKP = I_NKP_max * f_NaK * 1/(1 + (zeta_Na/C_Na_N)**1.5)*Hill(C_K_E, zeta_K, 1) : amp/meter**2
+            sigma = 1/7 * (exp(C_Na_E/(67.3 * mM))-1)              : 1
+            f_NaK = 1/(1 + 0.1245 * exp(-0.1 * v/V_T) + 0.0365 * sigma * exp(-v/V_T)) : 1
+            I_NKP = I_NKP_max * f_NaK * Hill(C_Na_N, zeta_Na, 1.5) * Hill(C_K_E, zeta_K, 1) : amp/meter**2
             I_KCC = g_KCC*(E_K - E_Cl)                          : amp/meter**2           
             dv/dt=(I_inj - I_Na - I_K - I_Cl_L + I_NKP)/c_m       : volt
             Check_1 = I_Na + 3 * I_NKP                          :amp/meter**2
@@ -107,11 +107,141 @@ def return_HH_equations(model = 'hh-neuron'):
 # f_NaK = 1/(1 + 0.1245 * exp(-0.1 * v/V_T) + 0.0365 * sigma * exp(-v/V_T))
 # I_Na = (g_Na*m**3*h + g_Na_L)*(v-E_Na)                       : amp/meter**2
 
+def return_plotting_list(model):
+    ## To guarantee an error free code execution make sure that the last list item contains the highest number out of all plot_number keys
+    
+    if model == 'hh-ecs':
+        plotting_list = [
+            {
+                'variable': 'I_inj', 
+                'axis': 'I_inj in nA/cm^2',
+                'plot_number' : 0,
+                'unit' : namp/cm**2
+            },
+            {
+                'variable': 'I_Na',
+                'axis': 'I_Na in A/m^2',
+                'plot_number' : 1,
+                'unit': namp/cm**2
+            },
+            {
+                'variable': 'I_Na_L',
+                'axis': 'I_Na_L in A/m^2',
+                'plot_number' : 2,
+                'unit': namp/cm**2
+            },
+            {
+                'variable': 'I_K', 
+                'axis': 'I_K (nA/m^2)',
+                'plot_number' : 3,
+                'unit': namp/cm**2
+            },
+            {
+                'variable': 'I_Cl_L', 
+                'axis': 'I_Cl (nA/m^2)',
+                'plot_number' : 4,
+                'unit': namp/cm**2 
+            },
+            {
+                'variable': 'I_NKP',
+                'axis': 'I_NKP in nA/cm^2',
+                'plot_number' : 5,
+                'unit': namp/cm**2
+            },
+            {
+                'variable': 'I_KCC',
+                'axis': 'I_KCC in a/m^2',
+                'plot_number' : 6,
+                'unit': namp/cm**2
+            },
+            {
+                'variable': 'v', 
+                'axis': 'v (mV)',
+                'plot_number' : 7,
+                'unit' : mV
+            },
+            {
+                'variable': 'E_K',
+                'axis': 'E_K (mV)',
+                'plot_number' : 8,
+                'unit': mV
+            },
+            {
+                'variable': 'E_Cl',
+                'axis': 'E_Cl (mV)',
+                'plot_number' : 9,
+                'unit': mV
+            },
+            {
+                'variable': 'E_Na',
+                'axis': 'E_Na (mV)',
+                'plot_number' : 10,
+                'unit': mV
+            },
+            {
+                'variable': 'C_Na_N',
+                'axis': 'C_Na_N in mol/m^3',
+                'plot_number' : 11,
+                'unit': mmolar
+            },
+            {
+                'variable': 'C_Na_E',
+                'axis': 'C_Na_E in mol/m^3',
+                'plot_number' : 12,
+                'unit': mmolar
+            },
+            {
+                'variable': 'C_K_N', 
+                'axis': 'C_K_N in mol/m^3',
+                'plot_number' : 13,
+                'unit': mmolar
+            },
+            {
+                'variable': 'C_K_E', 
+                'axis': 'C_K_E in mol/m^3',
+                'plot_number' : 14,
+                'unit': mmolar
+            },
+            {
+                'variable': 'C_Cl_N',
+                'axis': 'C_Cl_N in mol/m^3',
+                'plot_number' : 15,
+                'unit': mmolar
+            },
+            {
+                'variable': 'C_Cl_E',
+                'axis': 'C_Cl_E in mol/m^3',
+                'plot_number' : 16,
+                'unit': mmolar
+            },
+            {
+                'variable': 'Check_1',
+                'axis': 'Check_1 in nA/cm^2',
+                'plot_number' : 17,
+                'unit': namp/cm**2
+            },
+            {
+                'variable': 'Check_2',
+                'axis': 'Check_2 in nA/cm^2',
+                'plot_number' : 18,
+                'unit': namp/cm**2
+            },
+            {
+                'variable': 'Check_3',
+                'axis': 'Check_3 in nA/cm^2',
+                'plot_number' : 19,
+                'unit': namp/cm**2
+            }
+            ] 
+    return plotting_list
+
+
 gating_variables = {
     'm': 0.01,
     'n': 0.01,
     'h': 0.99
 }
+
 
 conductances = {
     'K': 6.93,

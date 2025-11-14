@@ -199,9 +199,18 @@ print(NernstPotential(concentrations['C0_Cl_E'], concentrations['C0_Cl_N'], -1, 
 print('NERNST K')
 print(NernstPotential(concentrations['C0_K_E'], concentrations['C0_K_N'], 1, 37))
 
+potassium_current = I_K_inf()
+print(f'POTASSIUM_CURRENT: {potassium_current}')
+
+KCC_current = I_KCC(conductances, ion_equilibria)
+print(f'KCC_CURRENT: {KCC_current}')
+
+NKP_current = I_NKP(I_NKP_max, f_NaK(-70, V_T, sigma()), concentrations, zetas)
+print(f'NKP_CURRENT: {NKP_current}')
 
 
-
+resting_potential = calculate_resting_state_potential_hh()
+print(f'RESTING POTENTIAL: {resting_potential}')
 # def calculate_resting_state_potential_hhecs():
 #     amplitude_current = brentq(total_current_hhecs, -100, 50)
 #     return amplitude_current
