@@ -6,7 +6,7 @@ import scipy.constants as spc
 def Hill(x,K,n):
     return x**n/(x**n+K**n)
 def ThermalVoltage(T):
-    return spc.R*(T+273.15)/spc.physical_constants['Faraday constant'][0]
+    return 8.314472000000000e+00*(T+273.15)/9.648534297750000e+04
 def NernstPotential(x_e,x_i,z,T):
     """
     Nernst potential in volts (w/out units)
@@ -89,8 +89,7 @@ def return_initial_parameters(model='hh-neuron',**kwargs):
     pars['E_Na'] = NernstPotential(pars['C0_Na_E'],pars['C0_Na_N'],1,pars['T_exp'])*volt
     pars['E_K']  = NernstPotential(pars['C0_K_E'],pars['C0_K_N'],1,pars['T_exp'])*volt
     pars['E_Cl'] = NernstPotential(pars['C0_Cl_E'],pars['C0_Cl_N'],-1,pars['T_exp'])*volt
-    pars['g_KCC'] = pars['g_Cl_L'] * (-70 - (NernstPotential(pars['C0_Cl_E'], pars['C0_Cl_N'], -1, 37) * 1000))/(NernstPotential(pars['C0_Cl_E'], pars['C0_Cl_N'], -1, 37) * 1000 - NernstPotential(pars['C0_K_E'], pars['C0_K_N'], -1, 37) * 1000)
-    # print(pars['g_KCC'])
+    pars['g_KCC'] = pars['g_Cl_L'] * (-70*mvolt - pars['E_Cl'])/(pars['E_Cl'] - pars['E_K'])
 
     ## Physics constants
     pars['F'] = spc.physical_constants['Faraday constant'][0]*coulomb/mole
@@ -101,4 +100,7 @@ def return_initial_parameters(model='hh-neuron',**kwargs):
     # Thermal Voltage
     pars['V_T'] = ThermalVoltage(37) * volt
 
+
     return pars
+
+return_initial_parameters()

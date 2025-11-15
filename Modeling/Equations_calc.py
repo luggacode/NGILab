@@ -48,18 +48,15 @@ def return_HH_equations(model = 'hh-neuron'):
 
     if model=='hh-ecs':
         eqs += Equations('''
-            dn_Na_N/dt = -S_N/F*(I_Na + 3*I_NKP) : mol
-            dn_Na_E/dt = S_N/F*(I_Na + 3*I_NKP) : mol
+            dn_Na_N/dt = -S_N/F*(I_Na + I_Na_L + 3*I_NKP) : mol
             dn_Cl_N/dt = S_N/F*(I_Cl_L + I_KCC) : mol
-            dn_Cl_E/dt = -(S_N/F*(I_Cl_L + I_KCC)) : mol
-            dn_K_N/dt = -S_N/F*(I_K - 2*I_NKP - I_KCC) : mol
-            dn_K_E/dt = S_N/F*(I_K - 2*I_NKP - I_KCC) : mol
+            dn_K_N/dt = -S_N/F*(I_K + I_K_L - 2*I_NKP - I_KCC) : mol
             C_Na_N = clip(C0_Na_N + n_Na_N/V_N, 0 * mM, 155 * mM) : mM
-            C_Na_E = clip(C0_Na_E + n_Na_E/V_E, 0 * mM, 155 * mM) : mM
+            C_Na_E = clip(C0_Na_E - n_Na_N/V_E, 0 * mM, 155 * mM) : mM
             C_Cl_N = clip(C0_Cl_N + n_Cl_N/V_N, 0 * mM, 133 * mM) : mM
-            C_Cl_E = clip(C0_Cl_E + n_Cl_E/V_E, 0 * mM, 133 * mM) : mM
+            C_Cl_E = clip(C0_Cl_E - n_Cl_N/V_E, 0 * mM, 133 * mM) : mM
             C_K_N = clip(C0_K_N + n_K_N/V_N, 0 * mM, 135 * mM) : mM
-            C_K_E = clip(C0_K_E + n_K_E/V_E, 0 * mM, 135 * mM)  : mM
+            C_K_E = clip(C0_K_E - n_K_N/V_E, 0 * mM, 135 * mM)  : mM
             E_Na = NernstPotential(C_Na_E, C_Na_N, 1, T_exp)*volt : volt
             E_K = NernstPotential(C_K_E, C_K_N, 1, T_exp)*volt : volt
             E_Cl = NernstPotential(C_Cl_E, C_Cl_N, -1, T_exp)*volt : volt          
@@ -69,13 +66,13 @@ def return_HH_equations(model = 'hh-neuron'):
             I_Na_L = g_Na_L * (v-E_Na)                          : amp/meter**2 
             I_K_L = g_K_L * (v-E_K)                         : amp/meter**2 
             I_L = I_Na_L + I_Cl_L + I_K_L                     : amp/meter**2 
-            sigma = 1/7 * (exp(C_Na_E/(67.3 * mM))-1)              : 1
+            sigma = 1/7 * expm1(C_Na_E/(67.3 * mM))              : 1
             f_NaK = 1/(1 + 0.1245 * exp(-0.1 * v/V_T) + 0.0365 * sigma * exp(-v/V_T)) : 1
             I_NKP = I_NKP_max * f_NaK * Hill(C_Na_N, zeta_Na, 1.5) * Hill(C_K_E, zeta_K, 1) : amp/meter**2
             I_KCC = g_KCC*(E_K - E_Cl)                          : amp/meter**2           
-            dv/dt=(I_inj - I_Na - I_K - I_Cl_L + I_NKP)/c_m       : volt
-            Check_1 = I_Na + 3 * I_NKP                          :amp/meter**2
-            Check_2 = I_K + 2 * I_NKP - I_KCC                   :amp/meter**2
+            dv/dt=(I_inj - I_Na - I_Na_L - I_K - I_K_L - I_Cl_L - I_NKP)/c_m       : volt
+            Check_1 = I_Na + I_Na_L + 3 * I_NKP                          :amp/meter**2
+            Check_2 = I_K + I_K_L - 2 * I_NKP - I_KCC                   :amp/meter**2
             Check_3 = I_Cl_L + I_KCC                              :amp/meter**2
         ''')
     elif model == 'hh-neuron':
@@ -99,6 +96,7 @@ def return_HH_equations(model = 'hh-neuron'):
         ''')
     else:
         ## w/ ECS
+        ## adjust models hh-neuron and hh-synapse
         pass
 
     return eqs
