@@ -7,10 +7,10 @@
 #include "brianlib/common_math.h"
 #include "randomkit.h"
 
-#include "code_objects/hh_1_spike_resetter_codeobject.h"
-#include "code_objects/hh_1_spike_thresholder_codeobject.h"
-#include "code_objects/after_run_hh_1_spike_thresholder_codeobject.h"
-#include "code_objects/hh_1_stateupdater_codeobject.h"
+#include "code_objects/hh_4_spike_resetter_codeobject.h"
+#include "code_objects/hh_4_spike_thresholder_codeobject.h"
+#include "code_objects/after_run_hh_4_spike_thresholder_codeobject.h"
+#include "code_objects/hh_4_stateupdater_codeobject.h"
 #include "code_objects/svmon_codeobject_1.h"
 
 
@@ -96,31 +96,31 @@ int main(int argc, char **argv)
 		using namespace brian;
 
 		omp_set_dynamic(0);
-omp_set_num_threads(2);
+omp_set_num_threads(1);
                 
         _array_defaultclock_dt[0] = 0.0001;
         _array_defaultclock_dt[0] = 0.0001;
-        _array_hh_1_clock_dt[0] = 5e-08;
-        _array_hh_1_clock_dt[0] = 5e-08;
-        _array_hh_1_m[0] = 0.007070226997565917;
-        _array_hh_1_h[0] = 0.6607563687658172;
-        _array_hh_1_n[0] = 0.00010681238059392482;
-        _array_hh_1_v[0] = - 0.07;
-        _array_svmon_clock_1_dt[0] = 0.0002;
-        _array_svmon_clock_1_dt[0] = 0.0002;
+        _array_hh_4_clock_dt[0] = 1e-08;
+        _array_hh_4_clock_dt[0] = 1e-08;
+        _array_hh_4_m[0] = 0.007070226997565917;
+        _array_hh_4_h[0] = 0.6607563687658172;
+        _array_hh_4_n[0] = 0.00010681238059392482;
+        _array_hh_4_v[0] = - 0.07;
+        _array_svmon_clock_3_dt[0] = 1e-05;
+        _array_svmon_clock_3_dt[0] = 1e-05;
         _array_svmon__indices[0] = false;
-        _array_svmon_clock_1_timestep[0] = false;
-        _array_svmon_clock_1_t[0] = false;
-        _array_hh_1_clock_timestep[0] = false;
-        _array_hh_1_clock_t[0] = false;
-        network_1.clear();
-        network_1.add(&svmon_clock_1, _run_svmon_codeobject_1);
-        network_1.add(&hh_1_clock, _run_hh_1_stateupdater_codeobject);
-        network_1.add(&hh_1_clock, _run_hh_1_spike_thresholder_codeobject);
-        network_1.add(&hh_1_clock, _run_hh_1_spike_resetter_codeobject);
+        _array_hh_4_clock_timestep[0] = false;
+        _array_hh_4_clock_t[0] = false;
+        _array_svmon_clock_3_timestep[0] = false;
+        _array_svmon_clock_3_t[0] = false;
+        network_3.clear();
+        network_3.add(&svmon_clock_3, _run_svmon_codeobject_1);
+        network_3.add(&hh_4_clock, _run_hh_4_stateupdater_codeobject);
+        network_3.add(&hh_4_clock, _run_hh_4_spike_thresholder_codeobject);
+        network_3.add(&hh_4_clock, _run_hh_4_spike_resetter_codeobject);
         set_from_command_line(args);
-        network_1.run(0.2, report_progress, 10.0);
-        _after_run_hh_1_spike_thresholder_codeobject();
+        network_3.run(0.5, report_progress, 10.0);
+        _after_run_hh_4_spike_thresholder_codeobject();
 
 	}
         

@@ -18,11 +18,11 @@ extern std::string results_dir;
 extern std::vector< rk_state* > _mersenne_twister_states;
 
 //////////////// clocks ///////////////////
-extern Clock hh_1_clock;
-extern Clock svmon_clock_1;
+extern Clock hh_4_clock;
+extern Clock svmon_clock_3;
 
 //////////////// networks /////////////////
-extern Network network_1;
+extern Network network_3;
 
 
 
@@ -38,91 +38,52 @@ extern double *_array_defaultclock_t;
 extern const int _num__array_defaultclock_t;
 extern int64_t *_array_defaultclock_timestep;
 extern const int _num__array_defaultclock_timestep;
-extern int32_t *_array_hh_1__spikespace;
-extern const int _num__array_hh_1__spikespace;
-extern double *_array_hh_1_clock_dt;
-extern const int _num__array_hh_1_clock_dt;
-extern double *_array_hh_1_clock_t;
-extern const int _num__array_hh_1_clock_t;
-extern int64_t *_array_hh_1_clock_timestep;
-extern const int _num__array_hh_1_clock_timestep;
-extern double *_array_hh_1_h;
-extern const int _num__array_hh_1_h;
-extern int32_t *_array_hh_1_i;
-extern const int _num__array_hh_1_i;
-extern double *_array_hh_1_m;
-extern const int _num__array_hh_1_m;
-extern double *_array_hh_1_n;
-extern const int _num__array_hh_1_n;
-extern double *_array_hh_1_n_Cl_E;
-extern const int _num__array_hh_1_n_Cl_E;
-extern double *_array_hh_1_n_Cl_N;
-extern const int _num__array_hh_1_n_Cl_N;
-extern double *_array_hh_1_n_K_E;
-extern const int _num__array_hh_1_n_K_E;
-extern double *_array_hh_1_n_K_N;
-extern const int _num__array_hh_1_n_K_N;
-extern double *_array_hh_1_n_Na_E;
-extern const int _num__array_hh_1_n_Na_E;
-extern double *_array_hh_1_n_Na_N;
-extern const int _num__array_hh_1_n_Na_N;
-extern double *_array_hh_1_v;
-extern const int _num__array_hh_1_v;
+extern int32_t *_array_hh_4__spikespace;
+extern const int _num__array_hh_4__spikespace;
+extern double *_array_hh_4_clock_dt;
+extern const int _num__array_hh_4_clock_dt;
+extern double *_array_hh_4_clock_t;
+extern const int _num__array_hh_4_clock_t;
+extern int64_t *_array_hh_4_clock_timestep;
+extern const int _num__array_hh_4_clock_timestep;
+extern double *_array_hh_4_h;
+extern const int _num__array_hh_4_h;
+extern int32_t *_array_hh_4_i;
+extern const int _num__array_hh_4_i;
+extern double *_array_hh_4_m;
+extern const int _num__array_hh_4_m;
+extern double *_array_hh_4_n;
+extern const int _num__array_hh_4_n;
+extern double *_array_hh_4_v;
+extern const int _num__array_hh_4_v;
 extern int32_t *_array_svmon__indices;
 extern const int _num__array_svmon__indices;
-extern double *_array_svmon_C_Cl_N;
-extern const int _num__array_svmon_C_Cl_N;
-extern double *_array_svmon_C_K_N;
-extern const int _num__array_svmon_C_K_N;
-extern double *_array_svmon_C_Na_N;
-extern const int _num__array_svmon_C_Na_N;
-extern double *_array_svmon_clock_1_dt;
-extern const int _num__array_svmon_clock_1_dt;
-extern double *_array_svmon_clock_1_t;
-extern const int _num__array_svmon_clock_1_t;
-extern int64_t *_array_svmon_clock_1_timestep;
-extern const int _num__array_svmon_clock_1_timestep;
-extern double *_array_svmon_E_Cl;
-extern const int _num__array_svmon_E_Cl;
-extern double *_array_svmon_E_K;
-extern const int _num__array_svmon_E_K;
-extern double *_array_svmon_E_Na;
-extern const int _num__array_svmon_E_Na;
-extern double *_array_svmon_I_Cl_L;
-extern const int _num__array_svmon_I_Cl_L;
-extern double *_array_svmon_I_K;
-extern const int _num__array_svmon_I_K;
-extern double *_array_svmon_I_KCC;
-extern const int _num__array_svmon_I_KCC;
-extern double *_array_svmon_I_Na;
-extern const int _num__array_svmon_I_Na;
-extern double *_array_svmon_I_Na_L;
-extern const int _num__array_svmon_I_Na_L;
-extern double *_array_svmon_I_NKP;
-extern const int _num__array_svmon_I_NKP;
+extern double *_array_svmon_clock_3_dt;
+extern const int _num__array_svmon_clock_3_dt;
+extern double *_array_svmon_clock_3_t;
+extern const int _num__array_svmon_clock_3_t;
+extern int64_t *_array_svmon_clock_3_timestep;
+extern const int _num__array_svmon_clock_3_timestep;
+extern double *_array_svmon_h;
+extern const int _num__array_svmon_h;
+extern double *_array_svmon_m;
+extern const int _num__array_svmon_m;
 extern int32_t *_array_svmon_N;
 extern const int _num__array_svmon_N;
+extern double *_array_svmon_n;
+extern const int _num__array_svmon_n;
 extern double *_array_svmon_v;
 extern const int _num__array_svmon_v;
 
 //////////////// dynamic arrays 2d /////////
-extern DynamicArray2D<double> _dynamic_array_svmon_C_Cl_N;
-extern DynamicArray2D<double> _dynamic_array_svmon_C_K_N;
-extern DynamicArray2D<double> _dynamic_array_svmon_C_Na_N;
-extern DynamicArray2D<double> _dynamic_array_svmon_E_Cl;
-extern DynamicArray2D<double> _dynamic_array_svmon_E_K;
-extern DynamicArray2D<double> _dynamic_array_svmon_E_Na;
-extern DynamicArray2D<double> _dynamic_array_svmon_I_Cl_L;
-extern DynamicArray2D<double> _dynamic_array_svmon_I_K;
-extern DynamicArray2D<double> _dynamic_array_svmon_I_KCC;
-extern DynamicArray2D<double> _dynamic_array_svmon_I_Na;
-extern DynamicArray2D<double> _dynamic_array_svmon_I_Na_L;
-extern DynamicArray2D<double> _dynamic_array_svmon_I_NKP;
+extern DynamicArray2D<double> _dynamic_array_svmon_h;
+extern DynamicArray2D<double> _dynamic_array_svmon_m;
+extern DynamicArray2D<double> _dynamic_array_svmon_n;
 extern DynamicArray2D<double> _dynamic_array_svmon_v;
 
 /////////////// static arrays /////////////
-extern double *_timedarray_1_values;
-extern const int _num__timedarray_1_values;
+extern double *_timedarray_5_values;
+extern const int _num__timedarray_5_values;
 
 //////////////// synapses /////////////////
 

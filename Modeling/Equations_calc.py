@@ -79,7 +79,7 @@ def return_HH_equations(model = 'hh-neuron'):
         eqs += Equations('''
             I_Na=g_Na*m**3*h*(v-E_Na)                       : amp/meter**2
             I_K=g_K*n*(v-E_K)                               : amp/meter**2
-            I_Cl_L=g_Cl*(v-E_Cl)                              : amp/meter**2
+            I_Cl_L=g_Cl_L*(v-E_Cl)                              : amp/meter**2
             dv/dt=(I_inj-I_Na-I_K-I_Cl_L)/c_m                 : volt   
         ''')
 
@@ -231,18 +231,32 @@ def return_plotting_list(model):
                 'unit': namp/cm**2
             }
             ] 
+    elif model == 'hh-neuron':
+        plotting_list = [
+            {
+                'variable': 'v', 
+                'axis': 'v (mV)',
+                'plot_number' : 0,
+                'unit' : mvolt
+            },
+            {
+                'variable': 'm', 
+                'axis': 'gating variable m',
+                'plot_number' : 1,
+                'unit' : 1
+            },
+            {
+                'variable': 'n', 
+                'axis': 'gating variable n',
+                'plot_number' : 2,
+                'unit' : 1
+            },
+            {
+                'variable': 'h', 
+                'axis': 'gating variable h',
+                'plot_number' : 3,
+                'unit' : 1
+            }
+        ]
     return plotting_list
 
-
-gating_variables = {
-    'm': 0.01,
-    'n': 0.01,
-    'h': 0.99
-}
-
-
-conductances = {
-    'K': 6.93,
-    'Na': 2.04,
-    'Cl': 0.0000338
-}

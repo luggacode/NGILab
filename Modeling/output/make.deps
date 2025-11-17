@@ -1,48 +1,46 @@
 randomkit.o: brianlib/randomkit/randomkit.c \
   brianlib/randomkit/randomkit.h
-after_run_hh_1_spike_thresholder_codeobject.o: \
-  code_objects/after_run_hh_1_spike_thresholder_codeobject.cpp objects.h \
+after_run_hh_4_spike_thresholder_codeobject.o: \
+  code_objects/after_run_hh_4_spike_thresholder_codeobject.cpp objects.h \
   synapses_classes.h /opt/anaconda3/envs/Brian2_NGILab/include/omp.h \
   brianlib/spikequeue.h brianlib/stdint_compat.h brianlib/clocks.h \
   brianlib/dynamic_array.h network.h brianlib/randomkit/randomkit.h \
-  code_objects/after_run_hh_1_spike_thresholder_codeobject.h \
+  code_objects/after_run_hh_4_spike_thresholder_codeobject.h \
   brianlib/common_math.h
-hh_1_spike_resetter_codeobject.o: \
-  code_objects/hh_1_spike_resetter_codeobject.cpp \
-  code_objects/hh_1_spike_resetter_codeobject.h objects.h \
-  synapses_classes.h /opt/anaconda3/envs/Brian2_NGILab/include/omp.h \
-  brianlib/spikequeue.h brianlib/stdint_compat.h brianlib/clocks.h \
-  brianlib/dynamic_array.h network.h brianlib/randomkit/randomkit.h \
-  brianlib/common_math.h
-hh_1_spike_thresholder_codeobject.o: \
-  code_objects/hh_1_spike_thresholder_codeobject.cpp \
-  code_objects/hh_1_spike_thresholder_codeobject.h objects.h \
+hh_4_spike_resetter_codeobject.o: \
+  code_objects/hh_4_spike_resetter_codeobject.cpp \
+  code_objects/hh_4_spike_resetter_codeobject.h objects.h \
   synapses_classes.h /opt/anaconda3/envs/Brian2_NGILab/include/omp.h \
   brianlib/spikequeue.h brianlib/stdint_compat.h brianlib/clocks.h \
   brianlib/dynamic_array.h network.h brianlib/randomkit/randomkit.h \
   brianlib/common_math.h
-hh_1_stateupdater_codeobject.o: \
-  code_objects/hh_1_stateupdater_codeobject.cpp \
-  code_objects/hh_1_stateupdater_codeobject.h objects.h \
+hh_4_spike_thresholder_codeobject.o: \
+  code_objects/hh_4_spike_thresholder_codeobject.cpp \
+  code_objects/hh_4_spike_thresholder_codeobject.h objects.h \
   synapses_classes.h /opt/anaconda3/envs/Brian2_NGILab/include/omp.h \
   brianlib/spikequeue.h brianlib/stdint_compat.h brianlib/clocks.h \
   brianlib/dynamic_array.h network.h brianlib/randomkit/randomkit.h \
-  brianlib/common_math.h \
-  /opt/anaconda3/envs/Brian2_NGILab/include/gsl/gsl_const_mksa.h
+  brianlib/common_math.h
+hh_4_stateupdater_codeobject.o: \
+  code_objects/hh_4_stateupdater_codeobject.cpp \
+  code_objects/hh_4_stateupdater_codeobject.h objects.h \
+  synapses_classes.h /opt/anaconda3/envs/Brian2_NGILab/include/omp.h \
+  brianlib/spikequeue.h brianlib/stdint_compat.h brianlib/clocks.h \
+  brianlib/dynamic_array.h network.h brianlib/randomkit/randomkit.h \
+  brianlib/common_math.h
 svmon_codeobject_1.o: code_objects/svmon_codeobject_1.cpp \
   code_objects/svmon_codeobject_1.h objects.h synapses_classes.h \
   /opt/anaconda3/envs/Brian2_NGILab/include/omp.h brianlib/spikequeue.h \
   brianlib/stdint_compat.h brianlib/clocks.h brianlib/dynamic_array.h \
-  network.h brianlib/randomkit/randomkit.h brianlib/common_math.h \
-  /opt/anaconda3/envs/Brian2_NGILab/include/gsl/gsl_const_mksa.h
+  network.h brianlib/randomkit/randomkit.h brianlib/common_math.h
 main.o: main.cpp objects.h synapses_classes.h \
   /opt/anaconda3/envs/Brian2_NGILab/include/omp.h brianlib/spikequeue.h \
   brianlib/stdint_compat.h brianlib/clocks.h brianlib/dynamic_array.h \
   network.h brianlib/randomkit/randomkit.h run.h brianlib/common_math.h \
-  code_objects/hh_1_spike_resetter_codeobject.h \
-  code_objects/hh_1_spike_thresholder_codeobject.h \
-  code_objects/after_run_hh_1_spike_thresholder_codeobject.h \
-  code_objects/hh_1_stateupdater_codeobject.h \
+  code_objects/hh_4_spike_resetter_codeobject.h \
+  code_objects/hh_4_spike_thresholder_codeobject.h \
+  code_objects/after_run_hh_4_spike_thresholder_codeobject.h \
+  code_objects/hh_4_stateupdater_codeobject.h \
   code_objects/svmon_codeobject_1.h
 network.o: network.cpp network.h brianlib/clocks.h \
   brianlib/stdint_compat.h \
@@ -55,8 +53,8 @@ run.o: run.cpp objects.h synapses_classes.h \
   /opt/anaconda3/envs/Brian2_NGILab/include/omp.h brianlib/spikequeue.h \
   brianlib/stdint_compat.h brianlib/clocks.h brianlib/dynamic_array.h \
   network.h brianlib/randomkit/randomkit.h \
-  code_objects/hh_1_spike_resetter_codeobject.h \
-  code_objects/hh_1_spike_thresholder_codeobject.h \
-  code_objects/hh_1_stateupdater_codeobject.h \
+  code_objects/hh_4_spike_resetter_codeobject.h \
+  code_objects/hh_4_spike_thresholder_codeobject.h \
+  code_objects/hh_4_stateupdater_codeobject.h \
   code_objects/svmon_codeobject_1.h
 synapses_classes.o: synapses_classes.cpp

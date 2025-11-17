@@ -18,7 +18,7 @@ public:
 	SynapticPathway(std::vector<int> &_sources, int _spikes_start, int _spikes_stop)
 		: sources(_sources)
 	{
-	   _nb_threads = 2;
+	   _nb_threads = 1;
 
 	   for (int _idx=0; _idx < _nb_threads; _idx++)
 	       queue.push_back(new CSpikeQueue(_spikes_start, _spikes_stop));
@@ -43,7 +43,7 @@ public:
 	vector<int32_t>* peek()
     {
     	#pragma omp for schedule(static) ordered
-		for(int _thread=0; _thread < 2; _thread++)
+		for(int _thread=0; _thread < 1; _thread++)
 		{
 			#pragma omp ordered
 			{

@@ -1,5 +1,5 @@
-#include "code_objects/svmon_codeobject_1.h"
 #include "objects.h"
+#include "code_objects/after_run_hh_4_spike_thresholder_codeobject.h"
 #include "brianlib/common_math.h"
 #include "brianlib/stdint_compat.h"
 #include<cmath>
@@ -119,77 +119,19 @@ namespace {
 
 }
 
-////// HASH DEFINES ///////
-
-
-
-void _run_svmon_codeobject_1()
+void _after_run_hh_4_spike_thresholder_codeobject()
 {
     using namespace brian;
-
-
     ///// CONSTANTS ///////////
-    const size_t _numN = 1;
-const size_t _num_clock_t = 1;
-const size_t _num_indices = 1;
-const size_t _num_source_h = 1;
-const size_t _num_source_m = 1;
-const size_t _num_source_n = 1;
-const size_t _num_source_v = 1;
-double* const _array_svmon_t = _dynamic_array_svmon_t.empty()? 0 : &_dynamic_array_svmon_t[0];
-const size_t _numt = _dynamic_array_svmon_t.size();
+    const int64_t N = true;
+const size_t _num_spikespace = 2;
+const size_t _numv = 1;
+const double v_thr = false;
     ///// POINTERS ////////////
         
-    int32_t*   _ptr_array_svmon_N = _array_svmon_N;
-    double*   _ptr_array_svmon_clock_3_t = _array_svmon_clock_3_t;
-    int32_t*   _ptr_array_svmon__indices = _array_svmon__indices;
-    double*   _ptr_array_hh_4_h = _array_hh_4_h;
-    double*   _ptr_array_hh_4_m = _array_hh_4_m;
-    double*   _ptr_array_hh_4_n = _array_hh_4_n;
+    int32_t* __restrict  _ptr_array_hh_4__spikespace = _array_hh_4__spikespace;
     double*   _ptr_array_hh_4_v = _array_hh_4_v;
-    double* __restrict  _ptr_array_svmon_t = _array_svmon_t;
 
-
-    _dynamic_array_svmon_t.push_back(_ptr_array_svmon_clock_3_t[0]);
-
-    const size_t _new_size = _dynamic_array_svmon_t.size();
-    // Resize the dynamic arrays
-    _dynamic_array_svmon_h.resize(_new_size, _num_indices);
-    _dynamic_array_svmon_m.resize(_new_size, _num_indices);
-    _dynamic_array_svmon_n.resize(_new_size, _num_indices);
-    _dynamic_array_svmon_v.resize(_new_size, _num_indices);
-
-    // scalar code
-    const size_t _vectorisation_idx = -1;
-        
-
-
-    #pragma omp parallel for schedule(static)
-    for (int _i = 0; _i < (int)_num_indices; _i++)
-    {
-        // vector code
-        const size_t _idx = _ptr_array_svmon__indices[_i];
-        const size_t _vectorisation_idx = _idx;
-                
-        const double _source_h = _ptr_array_hh_4_h[_idx];
-        const double _source_m = _ptr_array_hh_4_m[_idx];
-        const double _source_n = _ptr_array_hh_4_n[_idx];
-        const double _source_v = _ptr_array_hh_4_v[_idx];
-        const double _to_record_v = _source_v;
-        const double _to_record_m = _source_m;
-        const double _to_record_n = _source_n;
-        const double _to_record_h = _source_h;
-
-
-        _dynamic_array_svmon_h(_new_size-1, _i) = _to_record_h;
-        _dynamic_array_svmon_m(_new_size-1, _i) = _to_record_m;
-        _dynamic_array_svmon_n(_new_size-1, _i) = _to_record_n;
-        _dynamic_array_svmon_v(_new_size-1, _i) = _to_record_v;
-    }
-
-    _ptr_array_svmon_N[0] = _new_size;
-
+_ptr_array_hh_4__spikespace[N] = 0;  // Note that this is not an off-by-1-error: the array has N+1 elements
 
 }
-
-
