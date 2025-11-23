@@ -36,7 +36,7 @@ def return_initial_parameters(model='hh-neuron',**kwargs):
     - pars   : dict
     """
 
-    ta = TimedArray([0] * 5 + [1] * 55, dt=1*second)
+    ta = TimedArray([0] * 2 + [1] * 4 + [0] * 4, dt=0.01*second)
 
     # Define dictionary of default parameters values
     pars = {## Concentrations to setup reverse potentials
@@ -67,7 +67,7 @@ def return_initial_parameters(model='hh-neuron',**kwargs):
             ## External Stimulation
             'I_dc'  : 0*namp/cm**2,
             'I_ramp': 0*namp/cm**2,
-            'I_max' : 3700*namp/cm**2,
+            'I_max' : 0*namp/cm**2,
             'T_ramp': 100*second,
             'TimedArray' : ta,
             ## times

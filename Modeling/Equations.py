@@ -106,6 +106,8 @@ def I_KCC(conductances, ion_equilibria):
 ## Calculations ionic currents_inf 2 - AT RESTING POTENTIAL (ik that they aren't necessary with the functions above already being defined but hey)
 def I_Na_inf(leakage_conductance):
     return (conductances['Na'] * gating_variable_m(-70)**3 * gating_variable_h(-70) + leakage_conductance) * (-70 - ion_equilibria['E_Na'])
+def I_Na_sum(leakage_conductance, V):
+    return (conductances['Na'] * gating_variable_m(V)**3 * gating_variable_h(V) + leakage_conductance) * (V - ion_equilibria['E_Na'])
 def I_Na_inf_ohne_lc():
     return (conductances['Na'] * gating_variable_m(-70)**3 * gating_variable_h(-70)) * (-70 - ion_equilibria['E_Na'])
 def I_K_inf():
@@ -140,8 +142,13 @@ def calc_leakage_conductance():
     leakage_conductance = brentq(equilibrium_current, 0, 50000)
     return leakage_conductance
 
-
 conductances['g_KCC'] = conductance_KCC(-70, ion_equilibria['E_Cl'], ion_equilibria['E_K'], conductances['Cl'])
+
+## Calculation of the minimum I-inj needed to create spiking behavior
+def I_inj_min():
+    return I_Na_sum(calc_leakage_conductance(), -70) + 
+
+
 
 ## ACTUAL VALUE CALCULATIONS
 
@@ -215,6 +222,8 @@ print(f'I_KCC_CURRENT: {I_KCC_CURRENT}')
 
 NKP_current = I_NKP(I_NKP_max, f_NaK(-70, V_T), concentrations, zetas)
 print(f'NKP_CURRENT: {NKP_current}')
+
+
 
 
 # resting_potential = calculate_resting_state_potential_hh()

@@ -102,9 +102,9 @@ def return_HH_equations(model = 'hh-neuron'):
             I_NKP = I_NKP_max * f_NaK * Hill(C_Na_N, zeta_Na, 1.5) * Hill(C_K_E, zeta_K, 1) : amp/meter**2
             I_KCC = g_KCC*(E_K - E_Cl)                          : amp/meter**2           
             dv/dt=(I_inj - I_Na - I_Na_L - I_K - I_K_L - I_Cl_L - I_NKP - I_syn)/c_m       : volt
-            g_syn                               : siemens/meter**2
+            g_syn                               : siemens/meter**2 
             E_syn = E_Cl : volt
-            I_syn = 0 * g_syn*(v - E_syn)                       : amp/meter**2
+            I_syn = g_syn*(v - E_syn)                       : amp/meter**2
             Check_1 = I_Na + I_Na_L + 3 * I_NKP                          :amp/meter**2
             Check_2 = I_K + I_K_L - 2 * I_NKP - I_KCC                   :amp/meter**2
             Check_3 = I_Cl_L + I_KCC                              :amp/meter**2
