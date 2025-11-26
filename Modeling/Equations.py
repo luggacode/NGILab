@@ -146,7 +146,7 @@ conductances['g_KCC'] = conductance_KCC(-70, ion_equilibria['E_Cl'], ion_equilib
 
 ## Calculation of the minimum I-inj needed to create spiking behavior
 def I_inj_min():
-    return I_Na_sum(calc_leakage_conductance(), -70) + 
+    return I_Na_sum(calc_leakage_conductance(), -70) 
 
 
 

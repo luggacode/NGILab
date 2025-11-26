@@ -40,7 +40,8 @@ def return_HH_equations(model = 'hh-neuron'):
     tau_m=1e-3/(a_m+b_m)/T_adj                         : second
     tau_h=1e-3/(a_h+b_h)/T_adj                         : second
     tau_n=4*ms/(1+exp(-(v+56.56*mvolt)/(44.14*mvolt)))/T_adj      : second
-    I_inj=I_max * TimedArray(t)                   : amp/meter**2
+    mask                                            : 1
+    I_inj=mask * I_max * TimedArray(t)                   : amp/meter**2
     dm/dt=(m_inf-m)/tau_m                           : 1
     dh/dt=(h_inf-h)/tau_h                           : 1
     dn/dt=(n_inf-n)/tau_n                           : 1
@@ -103,7 +104,7 @@ def return_HH_equations(model = 'hh-neuron'):
             I_KCC = g_KCC*(E_K - E_Cl)                          : amp/meter**2           
             dv/dt=(I_inj - I_Na - I_Na_L - I_K - I_K_L - I_Cl_L - I_NKP - I_syn)/c_m       : volt
             g_syn                               : siemens/meter**2 
-            E_syn = E_Cl : volt
+            E_syn = V_T * log((C_Na_E + 1.2*C_K_E)/(C_Na_N + 1.2 * C_K_N)) : volt
             I_syn = g_syn*(v - E_syn)                       : amp/meter**2
             Check_1 = I_Na + I_Na_L + 3 * I_NKP                          :amp/meter**2
             Check_2 = I_K + I_K_L - 2 * I_NKP - I_KCC                   :amp/meter**2
@@ -111,7 +112,7 @@ def return_HH_equations(model = 'hh-neuron'):
         ''')
     
     ## CURRENTLY NO I_syn -> remove zero in I_syn to restore the current
-    ## E_syn has to be E_AMPA (E_syn = V_T * log((N0_e + 1.2*K0_e)/(N0_i + 1.2 * K0_i)) : volt) for excitatory synapse and E_GABA () for inhibitory synapse
+    ## E_syn has to be E_AMPA (E_syn = V_T * log((N0_e + 1.2*K0_e)/(N0_i + 1.2 * K0_i)) : volt) for excitatory synapse and E_GABA () = E_Cl for inhibitory synapse
     
     elif model == 'hh-neuron':
         eqs += Equations('''
@@ -120,18 +121,6 @@ def return_HH_equations(model = 'hh-neuron'):
             I_Cl_L=g_Cl_L*(v-E_Cl)                              : amp/meter**2
             dv/dt=(I_inj-I_Na-I_K-I_Cl_L)/c_m                 : volt   
         ''')
-
-    elif model == 'hh-neuron-synapse':
-        eqs += Equations('''
-            I_Na=g_Na*m**3*h*(v-E_Na)                       : amp/meter**2
-            I_K=g_K*n*(v-E_K)                               : amp/meter**2
-            I_Cl_L=g_Cl*(v-E_Cl)                            : amp/meter**2
-            dv/dt=(I_inj-I_Na-I_K-I_Cl_L-I_syn)/c_m         : volt   
-            g_syn                               : siemens/meter**2
-            E_syn = E_Cl : volt
-            I_syn = g_syn*(v - E_syn)                       : amp/meter**2
-        ''')
-        ## E_syn has to be E_AMPA (E_syn = V_T * log((N0_e + 1.2*K0_e)/(N0_i + 1.2 * K0_i)) : volt) for excitatory synapse and E_GABA () for inhibitory synapse
     else:
         ## w/ ECS
         ## adjust models hh-neuron and hh-synapse
@@ -142,6 +131,18 @@ def return_HH_equations(model = 'hh-neuron'):
 #  I_NKP = I_NKP_max*(1 + 0.1245 * exp(-v/(10*V_T)) - 0.0052 * exp(-v/V_T) * (1 - exp(C_Na_E/(67.3*mM)))) * Hill(C_Na_N, zeta_Na, 1.5) * Hill(C_K_E, zeta_K, 1) : amp/meter**2
 # f_NaK = 1/(1 + 0.1245 * exp(-0.1 * v/V_T) + 0.0365 * sigma * exp(-v/V_T))
 # I_Na = (g_Na*m**3*h + g_Na_L)*(v-E_Na)                       : amp/meter**2
+
+# elif model == 'hh-neuron-synapse':
+#         eqs += Equations('''
+#             I_Na=g_Na*m**3*h*(v-E_Na)                       : amp/meter**2
+#             I_K=g_K*n*(v-E_K)                               : amp/meter**2
+#             I_Cl_L=g_Cl*(v-E_Cl)                            : amp/meter**2
+#             dv/dt=(I_inj-I_Na-I_K-I_Cl_L-I_syn)/c_m         : volt   
+#             g_syn                               : siemens/meter**2
+#             E_syn = E_Cl : volt
+#             I_syn = g_syn*(v - E_syn)                       : amp/meter**2
+#         ''')
+#         ## E_syn has to be E_AMPA (E_syn = V_T * log((N0_e + 1.2*K0_e)/(N0_i + 1.2 * K0_i)) : volt) for excitatory synapse and E_GABA () for inhibitory synapse
 
 def return_plotting_list(model):
     ## To guarantee an error free code execution make sure that the last list item contains the highest number out of all plot_number keys
@@ -273,6 +274,18 @@ def return_plotting_list(model):
                 'axis': 'I_syn (nA/cm^2)',
                 'plot_number' : 20,
                 'unit': namp/cm**2
+            },
+            {
+                'variable': 'g_syn',
+                'axis': 'g_syn (usiemens/cm^2)',
+                'plot_number' : 21,
+                'unit': usiemens/cm**2
+            },
+            {
+                'variable': 'E_syn',
+                'axis': 'E_Syn (mV)',
+                'plot_number' : 22,
+                'unit': mV
             }
             ] 
     elif model == 'hh-neuron':
