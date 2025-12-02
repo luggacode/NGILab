@@ -24,7 +24,7 @@ def NernstPotential(x_e,x_i,z,T):
     return V_T/z*np.log(x_e/x_i)
 
 
-def return_initial_parameters(model='hh-neuron',**kwargs):
+def return_initial_parameters():
     """
     Method to generate neuron parameters' dictionary.
 
@@ -54,7 +54,9 @@ def return_initial_parameters(model='hh-neuron',**kwargs):
             'g_K' : 0.693e6*usiemens/cm**2,
             'g_Cl_L': 0.5e2*usiemens/cm**2,
             'g_KCC' : NaN*usiemens/cm**2,
-            'v_thr' : 59.3295*mvolt,
+            #'v_thr' : -59.3295*mvolt,
+            'v_thr' : -45*mvolt,
+            'resting_potential' : -70,
             ## Gating variables
             'U_m' : -38*mvolt,
             'U_h' : -66*mvolt,
@@ -67,7 +69,7 @@ def return_initial_parameters(model='hh-neuron',**kwargs):
             ## External Stimulation
             'I_dc'  : 0*namp/cm**2,
             'I_ramp': 0*namp/cm**2,
-            'I_max' : 4000*namp/cm**2,
+            'I_max' : 5000*namp/cm**2,
             'T_ramp': 100*second,
             'TimedArray' : ta,
             ## times
@@ -98,9 +100,21 @@ def return_initial_parameters(model='hh-neuron',**kwargs):
     pars['e'] = math.e
     
     # Thermal Voltage
-    pars['V_T'] = ThermalVoltage(37) * volt
+    pars['V_T'] = ThermalVoltage(pars['T_exp']) * volt
 
 
     return pars
 
-return_initial_parameters()
+def return_synapse_pars():
+    pars = {
+        'E_syn' : 50 * mvolt,
+        'tau_r_x' : 5*ms,
+        'tau_x' : 50*ms,
+        'J' : 1,
+        'g_s' : 35*usiemens/cm**2,
+        'W' : 4,
+        'A' : 0.6,
+        #'c_m': 1*ufarad/cm**2,
+        #'weight': 60*mvolt,
+    }
+    return pars
