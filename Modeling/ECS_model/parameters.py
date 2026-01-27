@@ -35,8 +35,8 @@ def return_initial_parameters():
     Return:
     - pars   : dict
     """
-    ta = TimedArray([1] * 20, dt=0.5*second)
-    # ta = TimedArray([0] * 2 + [1] * 2 + [0] * 16, dt=0.005*second)
+
+    ta = TimedArray([0] * 2 + [1] * 2 + [0] * 16, dt=0.005*second)
 
     # Define dictionary of default parameters values
     pars = {## Concentrations to setup reverse potentials

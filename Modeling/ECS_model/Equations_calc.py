@@ -59,11 +59,9 @@ def return_HH_equations(model = 'hh-neuron'):
             C_K_E = clip(C0_K_E - n_K_N/V_E, 0 * mM, 135 * mM)  : mM
             E_Na = NernstPotential(C_Na_E, C_Na_N, 1, T_exp)*volt : volt
             E_K = NernstPotential(C_K_E, C_K_N, 1, T_exp)*volt : volt
-            E_Cl = NernstPotential(C_Cl_E, C_Cl_N, -1, T_exp)*volt : volt    
-            g_Na_mod                                        : 1
-            g_K_mod                                        : 1
-            I_Na = g_Na_mod * g_Na*m**3*h*(v-E_Na)                       : amp/meter**2      
-            I_K = g_K_mod * g_K*n*(v-E_K)                               : amp/meter**2
+            E_Cl = NernstPotential(C_Cl_E, C_Cl_N, -1, T_exp)*volt : volt          
+            I_Na = g_Na*m**3*h*(v-E_Na)                       : amp/meter**2      
+            I_K = g_K*n*(v-E_K)                               : amp/meter**2
             I_Cl_L = g_Cl_L*(v-E_Cl)                              : amp/meter**2 
             I_Na_L = g_Na_L * (v-E_Na)                          : amp/meter**2 
             I_K_L = g_K_L * (v-E_K)                         : amp/meter**2 
@@ -313,14 +311,13 @@ def return_plotting_list(model):
                 'axis': 'Check_3 in nA/cm^2',
                 'plot_number' : 19,
                 'unit': namp/cm**2
+            },
+            {
+                'variable': 'I_syn',
+                'axis': 'I_syn (nA/cm^2)',
+                'plot_number' : 20,
+                'unit': namp/cm**2
             }]
-            # },
-            # {
-            #     'variable': 'I_syn',
-            #     'axis': 'I_syn (nA/cm^2)',
-            #     'plot_number' : 20,
-            #     'unit': namp/cm**2
-            # }]
         
     # {
     #             'variable': 'E_syn',
