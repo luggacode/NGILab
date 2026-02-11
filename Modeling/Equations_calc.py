@@ -35,12 +35,7 @@ def return_HH_equations(model = 'hh-neuron'):
             I_Na=g_Na*m**3*h*(v-E_Na)                       : amp/meter**2
             I_K=g_K*n*(v-E_K)                               : amp/meter**2
             I_Cl_L=g_Cl_L*(v-E_Cl)                              : amp/meter**2
-            dv/dt=(I_inj-I_Na-I_K-I_Cl_L- I_syn + I_noise)/c_m                 : volt
-            g_syn_e                               : siemens/meter**2 
-            g_syn_i                               : siemens/meter**2 
-            E_AMPA = V_T * log((C0_Na_E + 1.2*C0_K_E)/(C0_Na_N + 1.2 * C0_K_N)) : volt
-            E_GABA = -40*mvolt                           : volt
-            I_syn = g_syn_e * (v - E_AMPA) + g_syn_i * (v - E_GABA)  : amp/meter**2    
+            dv/dt=(I_inj-I_Na-I_K-I_Cl_L + I_noise)/c_m                 : volt
         ''')
     
     elif model=='hh-ecs':
@@ -79,6 +74,15 @@ def return_HH_equations(model = 'hh-neuron'):
             Check_3 = I_Cl_L + I_KCC                              :amp/meter**2
         ''')
     
+    
+    # a_u=-0.0033/second * exp(0.1 * (v + 35*mvolt)/mvolt)   : hertz
+    # b_u=0.0033/second * expm1(0.1* (v + 35*mvolt)/mvolt)   : hertz
+    # u_inf=a_m/(a_m+b_m)                                : 1
+    # tau_u=1/(T_adj*(a_u + b_u))                       : second
+    # du/dt = (u_inf - u)/tau_u                         : 1
+    # g_Kv7_mod                                      : 1
+    # I_Kv7 = g_Kv7_mod * g_Kv7 * u * (v-E_K)                      : amp/meter**2
+
     elif model=='hh-ecs-synapse':
         eqs += Equations('''
             dn_Na_N/dt = -S_N/F*(I_Na + I_Na_L + 3*I_NKP) : mol
@@ -312,6 +316,12 @@ def return_plotting_list(model):
                 'variable': 'Check_3',
                 'axis': 'Check_3 in nA/cm^2',
                 'plot_number' : 19,
+                'unit': namp/cm**2
+            },
+            {
+                'variable': 'I_Kv7',
+                'axis': 'I_Kv7 (nA/cm^2)',
+                'plot_number' : 20,
                 'unit': namp/cm**2
             }]
             # },

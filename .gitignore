@@ -976,3 +976,12 @@ Modeling/__pycache__/Equations_calc.cpython-39.pyc
 Modeling/__pycache__/parameters.cpython-39.pyc
 Modeling/__pycache__/Equations_calc.cpython-39.pyc
 Modeling/__pycache__/parameters.cpython-39.pyc
+Modeling/data/malgucken.npz
+Modeling/data/Pospischil_hh-neuron_f_I_inj_g_Kd_mod.npz
+Modeling/data/Pospischil_hh-neuron_f_I_inj_g_M_mod.npz
+Modeling/data/Pospischil_hh-neuron_f_I_inj_g_Na_mod.npz
+Modeling/data/Pospischil_hh-neuron_ramp_1000_nA.npz
+Modeling/data/Pospischil_hh-neuron_Time_Step_1000_nA.npz
+Modeling/data/Pospischil_hh-neuron-synapse_20_percent_connectivity.npz
+Modeling/data/Pospischil_hh-neuron-synapse_fully_connected.npz
+Modeling/data/test.npz

@@ -1,0 +1,261 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Default Imports
+#-----------------------------------------------------------------------------------------------------------------------
+import numpy as np
+from pathlib import Path
+from brian2tools import *
+import math
+from numpy import random
+import matplotlib.pyplot as plt
+import plotly.io as pio
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+pio.renderers.default = "browser"
+# plt.rcParams.update({
+#     "text.usetex": True,
+#     "font.family": "Helvetica"
+# })
+from plotting import return_plotting_list
+
+#-----------------------------------------------------------------------------------------------------------------------
+# Convenience functions
+#-----------------------------------------------------------------------------------------------------------------------
+def ThermalVoltage(T):
+    return 8.314472000000000 *(T+273.15)/9.648534297750000e+04
+
+V_T = ThermalVoltage(36)*1000
+
+def alpha_m(V):
+    return -0.32 * (V - V_T - 13)/(np.expm1(-(V - V_T - 13)/4))
+def beta_m(V):
+    return 0.28 * (V - V_T - 40)/(np.expm1((V - V_T - 40)/5))
+def m_inf(V):
+    return alpha_m(V)/(alpha_m(V) + beta_m(V))
+
+def alpha_h(V):
+    return 0.128 * np.exp((-V - V_T - 17)/18)
+def beta_h(V):
+    return 4/(1 + np.exp(-(V - V_T - 40)/5))
+def h_inf(V):
+    return alpha_h(V)/(alpha_h(V) + beta_h(V))
+
+def alpha_n(V):
+    return -0.032 * (V - V_T - 15)/(np.exp((-(V - V_T - 15)/5))- 1)
+def beta_n(V):
+    return 0.5 * np.exp(-(V -V_T - 10)/40)
+def n_inf(V):
+    return alpha_n(V)/(alpha_n(V) + beta_n(V))
+
+def p_inf(V):
+    return 1/(1 + np.exp(- (V + 35)/10))
+
+
+#-----------------------------------------------------------------------------------------------------------------------
+# Current plotting function
+#-----------------------------------------------------------------------------------------------------------------------
+def plot_currents(filename, plotting_list, neuron_list):
+    fig, ax = plt.subplots(plotting_list[-1]['plot_number']+1, 1,sharex=False, figsize=(10, len(plotting_list) * 1.3), constrained_layout=True)
+    for a in ax.flat:   # .flat works nicely for 2D arrays
+        a.tick_params(axis='x', labelsize=8)
+        a.tick_params(axis='y', labelsize=8)
+        # ax[-1].set_xlabel("time (s)")
+    with np.load(filename) as step_data:
+        data_dict = dict(step_data.items())
+    for element in plotting_list:
+        data = data_dict[element['variable']]
+        for idx, neuron in enumerate(data): 
+            if idx in neuron_list:
+                ax[element['plot_number']].plot(data_dict['t'], neuron, label = 'neuron ' + str(idx)) # , color = element['color']
+            #ax[element['plot_number']].plot(sv_mon.t/second, getattr(sv_mon, element['variable'])[:].T/element['unit'], label = element['variable'])    
+        ax[element['plot_number']].set_ylabel(element['axis'], fontsize = 8)
+        ax[element['plot_number']].set_xlabel('time (s)', fontsize = 8)
+        ax[element['plot_number']].legend(fontsize = 10)
+
+#-----------------------------------------------------------------------------------------------------------------------
+# Current comparison plotting function
+#-----------------------------------------------------------------------------------------------------------------------
+
+def plot_comparison_currents(plotting_list, neuron_list):
+    fig, ax = plt.subplots(plotting_list[-1]['plot_number']+1, 2,sharex=True, figsize=(14, len(plotting_list) * 1.5), constrained_layout=True)
+    for a in ax.flat:   # .flat works nicely for 2D arrays
+        a.tick_params(axis='x', labelsize=8)
+        a.tick_params(axis='y', labelsize=8)
+        # ax[-1].set_xlabel("time (s)")
+    with np.load('Pospischil_hh-neuron_Time_Step_1000_nA.npz') as step_data:
+        data_dict = dict(step_data.items())
+    for element in plotting_list:
+        data = data_dict[element['variable']]
+        for idx, neuron in enumerate(data): 
+            if idx in neuron_list:
+                ax[element['plot_number']][0].plot(data_dict['t'], neuron, label = 'neuron ' + str(idx), color = element['color'])
+            #ax[element['plot_number']].plot(sv_mon.t/second, getattr(sv_mon, element['variable'])[:].T/element['unit'], label = element['variable'])    
+        ax[element['plot_number']][0].set_ylabel(element['axis'], fontsize = 8)
+        ax[element['plot_number']][0].xaxis.set_visible(False)
+    ax[-1][0].xaxis.set_visible(True)
+    ax[-1][0].set_xlabel('time (s)', fontsize = 8)
+        # ax[element['plot_number']][0].legend(fontsize = 10)
+    with np.load('Pospischil_hh-neuron_ramp_1000_nA.npz') as step_data:
+        print(step_data)
+        data_dict = dict(step_data.items())
+        print(data_dict)
+    for element in plotting_list:
+        data = data_dict[element['variable']]
+        for idx, neuron in enumerate(data): 
+            # print(neuron)
+            if idx in neuron_list:
+                ax[element['plot_number']][1].plot(data_dict['t'], neuron, label = 'neuron ' + str(idx), color = element['color'])
+            #ax[element['plot_number']].plot(sv_mon.t/second, getattr(sv_mon, element['variable'])[:].T/element['unit'], label = element['variable'])    
+        ax[element['plot_number']][1].set_ylabel(element['axis'], fontsize = 8)
+        ax[element['plot_number']][1].xaxis.set_visible(False)
+    ax[-1][1].xaxis.set_visible(True)
+    ax[-1][1].set_xlabel('time (s)', fontsize = 8)
+    fig.align_ylabels(ax[:, 0])
+    fig.align_ylabels(ax[:, 1])
+        # ax[element['plot_number']][1].legend(fontsize = 10)
+
+
+
+#-----------------------------------------------------------------------------------------------------------------------
+# Gating vars plotting function
+#-----------------------------------------------------------------------------------------------------------------------
+
+def plot_gating_vars(plotting_list):
+    fig, ax = plt.subplots(plotting_list[-1]['plot_number']+1, 2,sharex=False, figsize=(14, len(plotting_list) * 1.5), constrained_layout=True)
+    for a in ax.flat:   # .flat works nicely for 2D arrays
+        a.tick_params(axis='x', labelsize=8)
+        a.tick_params(axis='y', labelsize=8)
+        # ax[-1].set_xlabel("time (s)")
+    with np.load('Pospischil_hh-neuron_Time_Step_1000_nA.npz') as step_data:
+        print(step_data)
+        data_dict = dict(step_data.items())
+        print(data_dict)
+    for element in plotting_list:
+        data = data_dict[element['variable']]
+        for idx, neuron in enumerate(data): 
+            # print(neuron)
+            ax[element['plot_number']][0].plot(data_dict['v'].T, neuron, label = 'neuron ' + str(idx) + ' ' + element['variable'])
+            #ax[element['plot_number']].plot(sv_mon.t/second, getattr(sv_mon, element['variable'])[:].T/element['unit'], label = element['variable'])    
+        ax[element['plot_number']][0].set_ylabel('gating variable activity', fontsize = 8)
+        ax[element['plot_number']][0].set_xlabel('membrane potential (mV)', fontsize = 8)
+        ax[element['plot_number']][0].legend(fontsize = 10)
+    with np.load('Pospischil_hh-neuron_ramp.npz') as step_data:
+        print(step_data)
+        data_dict = dict(step_data.items())
+        print(data_dict)
+    for element in plotting_list:
+        data = data_dict[element['variable']]
+        for idx, neuron in enumerate(data): 
+            # print(neuron)
+            ax[element['plot_number']][1].plot(data_dict['v'].T, neuron, label = 'neuron ' + str(idx) + ' ' + element['variable'])
+            #ax[element['plot_number']].plot(sv_mon.t/second, getattr(sv_mon, element['variable'])[:].T/element['unit'], label = element['variable'])    
+        ax[element['plot_number']][1].set_ylabel('gating variable activity', fontsize = 8)
+        ax[element['plot_number']][1].set_xlabel('membrane potential (mV)', fontsize = 8)
+        ax[element['plot_number']][1].legend(fontsize = 10)
+
+#-----------------------------------------------------------------------------------------------------------------------
+# Gating vars at equilibrium calculation and plotting functions
+#-----------------------------------------------------------------------------------------------------------------------
+
+potentials = np.linspace(-100, 100, 1000)
+m_inf_vals = m_inf(potentials)
+h_inf_vals = h_inf(potentials)
+n_inf_vals = n_inf(potentials)
+p_inf_vals = p_inf(potentials)
+
+
+def plot_equlibrium_gating_vars():
+    fig, ax = plt.subplots(1, 1 , sharex=False, figsize=(10, 5), constrained_layout=True)
+    ax.plot(potentials, m_inf_vals, color = '#C81D25', label = 'gating variable m')
+    ax.plot(potentials, h_inf_vals, color = 'green', label = 'gating variable h')
+    ax.plot(potentials, n_inf_vals, color = '#225FCF', label = 'gating variable n')
+    ax.plot(potentials, p_inf_vals, color = '#F3CA40', label = 'gating variable p')
+    ax.set_xlabel('membrane potential (mV)', fontsize = 11)
+    ax.set_ylabel('activity gating variable', fontsize = 11)
+    ax.legend(fontsize = 10)
+    plt.show()
+
+#-----------------------------------------------------------------------------------------------------------------------
+# f(I) curves for different conductances
+#-----------------------------------------------------------------------------------------------------------------------
+def plot_frequency_I_inj(filename1, filename2, filename3):
+    with np.load(filename1) as data:
+        data_dict_1 = dict(data.items())
+    with np.load(filename2) as data:
+        data_dict_2 = dict(data.items())
+    with np.load(filename3) as data:
+        data_dict_3 = dict(data.items())
+    fig, ax = plt.subplots(1, 3, sharex=False, figsize=(12, 4), constrained_layout = True)
+    ax[0].plot(data_dict_1['I_max'][:20], data_dict_1['spike_frequency'][:20], label = '25 % reduced g_Na', color = '#225FCF')
+    ax[0].plot(data_dict_1['I_max'][20:40], data_dict_1['spike_frequency'][20:40], label = 'normal g_Na', color = '#F3CA40')
+    ax[0].plot(data_dict_1['I_max'][40:], data_dict_1['spike_frequency'][40:], label = '25 % increased g_Na', color = '#C81D25')
+    ax[0].set_xlabel('I_inj (nA/cm^2)', fontsize = 10)
+    ax[0].set_ylabel('spiking frequency (Hz)', fontsize = 10)
+    ax[0].legend(fontsize = 8.5)
+    ax[0].set_xscale('log', base=10)
+    ax[0].set_yscale('log', base=10)
+    ax[1].plot(data_dict_2['I_max'][:20], data_dict_2['spike_frequency'][:20], label = '25 % reduced g_Kd', color = '#225FCF')
+    ax[1].plot(data_dict_2['I_max'][20:40], data_dict_2['spike_frequency'][20:40], label = 'normal g_Kd', color = '#F3CA40')
+    ax[1].plot(data_dict_2['I_max'][40:], data_dict_2['spike_frequency'][40:], label = '25 % increased g_Kd', color = '#C81D25')
+    ax[1].set_xlabel('I_inj (nA/cm^2)', fontsize = 10)
+    ax[1].set_ylabel('spiking frequency (Hz)', fontsize = 10)
+    ax[1].legend(fontsize = 8.5)
+    ax[1].set_xscale('log', base=10)
+    ax[1].set_yscale('log', base=10)
+    ax[2].plot(data_dict_3['I_max'][:20], data_dict_3['spike_frequency'][:20], label = '25 % reduced g_M', color = '#225FCF')
+    ax[2].plot(data_dict_3['I_max'][20:40], data_dict_3['spike_frequency'][20:40], label = 'normal g_M', color = '#F3CA40')
+    ax[2].plot(data_dict_3['I_max'][40:], data_dict_3['spike_frequency'][40:], label = '25 % increased g_M', color = '#C81D25')
+    ax[2].set_xlabel('I_inj (nA/cm^2)', fontsize = 10)
+    ax[2].set_ylabel('spiking frequency (Hz)', fontsize = 10)
+    ax[2].legend(fontsize = 8.5)
+    ax[2].set_xscale('log', base=10)
+    ax[2].set_yscale('log', base=10)
+
+
+#-----------------------------------------------------------------------------------------------------------------------
+# Raster plot
+#-----------------------------------------------------------------------------------------------------------------------
+def raster_plot(filename):
+    with np.load(filename) as data:
+        data_dict = dict(data.items())
+    fig, ax = plt.subplots(1,1)
+    ax.plot(data_dict['spike_mon_exc_t'], data_dict['spike_mon_exc_i'],"|",lw=0.1, color='k', label = 'neuron index')
+    ax.plot(data_dict['spike_mon_inh_t'], data_dict['spike_mon_inh_i'] + data_dict['number_exc_neurons'], "|",lw=0.1, color='r', label = 'time (s)')
+    ax.set_xlabel('time (s)', fontsize = 11)
+    ax.set_ylabel('neuron index', fontsize = 11)
+
+def raster_plot_extended(filename):
+    with np.load(filename) as data:
+        data_dict = dict(data.items())
+    neurons = np.arange(0, data_dict['number_neurons'], 1 , dtype=None)
+    print(neurons)
+    fig, ax = plt.subplots(1, 2, figsize = (10, 5))
+    ax[0].plot(data_dict['spike_mon_exc_t'], data_dict['spike_mon_exc_i'],"|",lw=0.1, color='k', label = 'neuron index')
+    ax[0].plot(data_dict['spike_mon_inh_t'], data_dict['spike_mon_inh_i'] + data_dict['number_exc_neurons'], "|",lw=0.1, color='r', label = 'time (s)')
+    ax[0].set_xlabel('time (s)', fontsize = 11)
+    ax[0].set_ylabel('neuron index', fontsize = 11)
+    ax[1].scatter(data_dict['total_connectivity'], neurons)
+    ax[1].set_xlabel('netto excitation', fontsize = 11)
+    ax[1].set_ylabel('neuron index', fontsize = 11)
+
+
+with np.load('Pospischil_hh-neuron_f_I_inj_g_Na_mod.npz') as data:
+        data_dict = dict(data.items())
+print(data_dict['I_max'])
+print(data_dict['spike_frequency'])
+
+
+# plot_comparison_currents(return_plotting_list('hh-neuron'), [0])
+# plot_gating_vars(return_plotting_list('hh-neuron-addons'))
+# plot_currents('Pospischil_hh-neuron_f_I_inj_g_Na_mod.npz', return_plotting_list('hh-neuron'), [3, 13, 23])
+
+# file_g_Na = 'Pospischil_hh-neuron_f_I_inj_g_Na_mod.npz'
+# file_g_Kd = 'Pospischil_hh-neuron_f_I_inj_g_Kd_mod.npz'
+# file_g_M = 'Pospischil_hh-neuron_f_I_inj_g_M_mod.npz'
+#plot_frequency_I_inj(file_g_Na, file_g_Kd, file_g_M)
+
+# raster_plot('Pospischil_hh-neuron-synapse_20_percent_connectivity.npz')
+# plot_equlibrium_gating_vars()
+raster_plot_extended('test.npz')
+plot_currents('test.npz', return_plotting_list('hh-neuron'), [12])
+
+plt.show()

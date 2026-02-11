@@ -1,17 +1,7 @@
-from brian2 import *
-defaultclock.dt = 0.01*ms
-codegen.target='cython'
-start_scope()
-
-device.reinit()
-device.activate()
-
 #-----------------------------------------------------------------------------------------------------------------------
 # Default Imports
 #-----------------------------------------------------------------------------------------------------------------------
 import numpy as np
-import math
-import scipy.constants as spc
 import importlib
 from brian2tools import *
 from importnb import Notebook
@@ -181,15 +171,17 @@ def lpc5_parameters(model='hh-neuron',**kwargs):
     ## Get parameters from parameters.py
     pars = return_initial_parameters()
 
-    ## Conductance sodium leakage channel
-    pars['g_Na_L'] = calc.calc_leakage_conductance()
+    if model == 'hh-ecs':
+        ## Conductance sodium leakage channel
+        pars['g_Na_L'] = calc.calc_leakage_conductance()
 
-    ## Adding I_NKP_max
-    I_Na_inf_calc = calc.I_Na_inf(calc.calc_leakage_conductance(), pars['resting_potential']*mvolt)
-    f_NaK_calc = calc.f_NaK(pars['resting_potential']*mvolt, ThermalVoltage(pars['T_exp'])*1000*mvolt)
-    Hill_K = Hill(pars['C0_K_E'], pars['zeta_K'], 1)
-    Hill_Na = Hill(pars['C0_Na_N'], pars['zeta_Na'], 1.5)
-    pars['I_NKP_max'] = calc.calculate_I_NKP_max(I_Na_inf_calc, f_NaK_calc, Hill_Na, Hill_K) 
+        ## Adding I_NKP_max
+        I_Na_inf_calc = calc.I_Na_inf(calc.calc_leakage_conductance(), pars['resting_potential']*mvolt)
+        f_NaK_calc = calc.f_NaK(pars['resting_potential']*mvolt, ThermalVoltage(pars['T_exp'])*1000*mvolt)
+        Hill_K = Hill(pars['C0_K_E'], pars['zeta_K'], 1)
+        Hill_Na = Hill(pars['C0_Na_N'], pars['zeta_Na'], 1.5)
+        pars['I_NKP_max'] = calc.calculate_I_NKP_max(I_Na_inf_calc, f_NaK_calc, Hill_Na, Hill_K) 
+    
     return pars
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -223,6 +215,7 @@ def lpc5_neuron(N,params,model='hh-ecs',name='hh*',dt=None, I_max = 0 * nA/cm**2
 
     # get model equations
     eqs = return_HH_equations(model)
+    print("Equation generation successful-------------------------------------------------------------------------------")
 
     # setup neuron based on parameters and equations and with refractory time
     neuron = NeuronGroup(N,eqs,
@@ -238,7 +231,7 @@ def lpc5_neuron(N,params,model='hh-ecs',name='hh*',dt=None, I_max = 0 * nA/cm**2
     neuron.m = calc.gating_variable_m(params['resting_potential']*mvolt)
     neuron.h = calc.gating_variable_h(params['resting_potential']*mvolt)
     neuron.n = calc.gating_variable_n(params['resting_potential']*mvolt)
-    neuron.mask = 0
+    neuron.mask = 1
     neuron.mask_noise = 1
     if model == 'hh-ecs' or model == 'hh-ecs-synapse':
         neuron.n_K_N = 0 * mole
@@ -311,18 +304,20 @@ def lpc5_simulation(duration=1.0,model='hh-ecs', show_monitor = False, save_plot
     # Reinitialization
     device.delete(force=True)
     
+
     ## BUILD NEURONS AND SYNAPSES
     # Initialize neurons
-    n_e = 10
-    n_i = 0
     params = lpc5_parameters(model=model,T_ramp=duration*second,**kwargs)
-    neurons = lpc5_neuron(n_e + n_i,params,model=model,name='hh*',dt=0.5*us)
-    # neurons = lpc5_neuron(n_e + n_i,params,model=model,name='hh*',dt=0.5*us)
-    # stimulating_neuron = neurons[0]
-    # monitored_neurons = neurons[1:]
-    exc_neurons = neurons #[:n_e]
-    # inh_neurons = neurons[n_e:]
-    neurons.mask = 1
+    if model == 'hh-neuron' or 'hh-ecs':
+        n = 1
+        neurons = lpc5_neuron(n,params,model=model,name='hh*',dt=0.5*us)
+    elif model == 'hh-ecs-synapse':
+        n_e = 10
+        n_i = 0
+        neurons = lpc5_neuron(n_e + n_i,params,model=model,name='hh*',dt=0.5*us)
+        exc_neurons = neurons[:n_e]
+        inh_neurons = neurons[n_e:]
+
 
     ## parameter testing:
     decreased_conductances_g_Na = []
@@ -341,35 +336,30 @@ def lpc5_simulation(duration=1.0,model='hh-ecs', show_monitor = False, save_plot
 
     neurons.g_Na_mod = test_conductances_g_Na
     neurons.g_K_mod = test_conductances_g_K
-    # for element in test_conductances:
-    #     index = test_conductances.index(element)
-    #     neurons.g_Na[index] = element
-
-    # Initialize Synapse
     
     
-    # exc_synapses = exc_synapse(exc_neurons, neurons)
-    # inh_synapses = inh_synapse(inh_neurons, neurons)
+    ## INITIALIZE SYNAPSES------------------------------------------------------------------------------------------------------------------------------------------------
+    if model == 'hh-ecs-synapse':
+        exc_synapses = exc_synapse(exc_neurons, neurons)
+        inh_synapses = inh_synapse(inh_neurons, neurons)
+        exc_synapses.delay = 'sqrt((x_pre-x_post)**2 + (y_pre-y_post)**2 + (z_pre-z_post)**2) * 40 * ms' 
+        A_values = [0, 0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8]
+        for element in A_values:
+            index = A_values.index(element)
+            exc_synapses.A[index] = element
 
-    #exc_synapses.delay = 'sqrt((x_pre-x_post)**2 + (y_pre-y_post)**2 + (z_pre-z_post)**2) * 40 * ms' 
-    # A_values = [0, 0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8]
-    # for element in A_values:
-    #     index = A_values.index(element)
-    #     exc_synapses.A[index] = element
-
-
-    # inh_synapses = inh_synapse(inh_neurons, neurons)
-
+    
     ## SET MONITORS
     #synapse monitor
+   ## SET MONITORS-------------------------------------------------------------------------------------------------------------------------------------------------------
+    # Define monitored variables
     if model=='hh-neuron':
-        # neuron_variables = ['v', 'm', 'n', 'h']
-        neuron_variables = ['v', 'I_noise']
+        neuron_variables = ['v', 'I_inj', 'I_Na', 'I_K', 'm', 'n', 'h', 'a_m', 'b_m', 'tau_m', 'tau_h', 'tau_n'] # I_noise
     elif model=='hh-ecs':
-        neuron_variables = ['v', 'E_K', 'E_Cl', 'E_Na', 'I_Na', 'I_Na_L', 'I_K', 'I_Cl_L', 'I_KCC', 'I_NKP', 'C_Cl_N','C_Na_N', 'C_K_N', 'C_Cl_E','C_Na_E', 'C_K_E', 'I_inj', 'Check_1', 'Check_2', 'Check_3', 'n_Na_N', 'n_K_N', 'n_Cl_N', 'g_Na_mod']
+        neuron_variables = ['v', 'E_K', 'E_Cl', 'E_Na', 'I_Na', 'I_Na_L', 'I_Kd', 'I_M', 'I_Cl_L', 'I_KCC', 'I_NKP', 'C_Cl_N','C_Na_N', 'C_K_N', 'C_Cl_E','C_Na_E', 'C_K_E', 'I_inj', 'Check_1', 'Check_2', 'Check_3', 'n_Na_N', 'n_K_N', 'n_Cl_N', 'g_Na_mod', 'm', 'n', 'h', 'p', 'a_m', 'b_m']
     elif model=='hh-ecs-synapse':
         neuron_variables = ['v', 'E_K', 'E_Cl', 'E_Na', 'I_Na', 'I_Na_L', 'I_K', 'I_Cl_L', 'I_KCC', 'I_NKP', 'I_syn', 'C_Cl_N','C_Na_N', 'C_K_N', 'C_Cl_E','C_Na_E', 'C_K_E', 'I_inj', 'Check_1', 'Check_2', 'Check_3', 'n_Na_N', 'n_K_N', 'n_Cl_N'] #E_syn
-    synapse_variables = ['r', 'x_syn']
+        synapse_variables = ['r', 'x_syn']
 
     # exc_synapse_monitor = StateMonitor(exc_synapses, variables=synapse_variables,record = [0], dt=0.1*ms, name='exc_synapse_monitor')
     # inh_synapse_monitor = StateMonitor(inh_synapses, variables=synapse_variables,record = [0], dt=0.1*ms, name='inh_synapse_monitor')
@@ -417,7 +407,7 @@ def lpc5_simulation(duration=1.0,model='hh-ecs', show_monitor = False, save_plot
     # plot_raster(spike_mon.i, spike_mon.t)
     
     # print(plotting_list)
-    fig, ax = plt.subplots(plotting_list[-1]['plot_number']+2, 1,sharex=True, figsize=(8, len(plotting_list) * 3.5))
+    fig, ax = plt.subplots(plotting_list[-1]['plot_number']+2, 1,sharex=False, figsize=(8, len(plotting_list) * 3.3))
     # ax[-1].set_xlabel("time (s)")
     for element in plotting_list:
         data = getattr(sv_mon, element['variable'])[:]/element['unit']
@@ -426,12 +416,15 @@ def lpc5_simulation(duration=1.0,model='hh-ecs', show_monitor = False, save_plot
             ax[element['plot_number']].plot(sv_mon.t/second, neuron, label = 'neuron ' + str(idx))
             #ax[element['plot_number']].plot(sv_mon.t/second, getattr(sv_mon, element['variable'])[:].T/element['unit'], label = element['variable'])    
         ax[element['plot_number']].set_ylabel(element['axis'])
+        ax[element['plot_number']].set_xlabel('time (s)')
         ax[element['plot_number']].legend()
         # ax[plotting_list[-1]['plot_number']+1].plot(delay_mon.t/second, getattr(delay_mon, 'delay')[:].T/1, label = 'delay')
         #ax[plotting_list[-1]['plot_number']+1].legend()
         # ax[plotting_list[-1]['plot_number']+1].plot(exc_synapse_monitor.t/second, getattr(exc_synapse_monitor, 'x_syn')[:].T/1, label = 'x_syn')
         # ax[plotting_list[-1]['plot_number']+1].legend()
     ax[-1].plot(neurons.g_K_mod, spike_mon_exc.count/(duration*second), label = 'spike frequency')
+    ax[-1].set_ylabel('Spiking frequency (sp/s)')
+    ax[-1].set_xlabel('modification factor g_K') 
     plt.legend()
     if save_plots:
         plt.savefig("output/graphs/Test_legend")
@@ -454,7 +447,7 @@ if __name__=="__main__":
     prefs.devices.cpp_standalone.openmp_threads = 1 ## The number of threads used in the parallelization (machine-dependent)
 
     # Multiple HH-neurons connected by synapses
-    lpc5_simulation(duration=10,model='hh-ecs', I_dc=10**4.2*nA/cm**2, show_monitor = False, save_plots = True)
+    lpc5_simulation(duration=10,model='hh-neuron', I_dc=10**4.2*nA/cm**2, show_monitor = False, save_plots = True)
     # plt.show()
 
     # Multiple neurons HH-ecs connected by synapses
