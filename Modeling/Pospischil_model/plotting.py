@@ -17,156 +17,156 @@ def return_plotting_list(model):
                 'plot_number' : 1,
                 'unit': namp/cm**2
             },
-            {
-                'variable': 'I_Na_L',
-                'axis': 'I_Na_L in A/m^2',
-                'plot_number' : 2,
-                'unit': namp/cm**2
-            },
+            # {
+            #     'variable': 'I_Na_L',
+            #     'axis': 'I_Na_L in A/m^2',
+            #     'plot_number' : 2,
+            #     'unit': namp/cm**2
+            # },
             {
                 'variable': 'I_Kd', 
                 'axis': 'I_Kd (nA/m^2)',
-                'plot_number' : 3,
+                'plot_number' : 2,
                 'unit': namp/cm**2
             },
             {
                 'variable': 'I_M', 
                 'axis': 'I_M (nA/m^2)',
-                'plot_number' : 4,
+                'plot_number' : 3,
                 'unit': namp/cm**2
             },
-            {
-                'variable': 'I_Cl_L', 
-                'axis': 'I_Cl (nA/m^2)',
-                'plot_number' : 5,
-                'unit': namp/cm**2 
-            },
+            # {
+            #     'variable': 'I_Cl_L', 
+            #     'axis': 'I_Cl (nA/m^2)',
+            #     'plot_number' : 5,
+            #     'unit': namp/cm**2 
+            # },
             {
                 'variable': 'I_NKP',
                 'axis': 'I_NKP in nA/cm^2',
-                'plot_number' : 6,
+                'plot_number' : 4,
                 'unit': namp/cm**2
             },
             {
                 'variable': 'I_KCC',
                 'axis': 'I_KCC in a/m^2',
-                'plot_number' : 7,
+                'plot_number' : 5,
                 'unit': namp/cm**2
             },
             {
                 'variable': 'v', 
                 'axis': 'v (mV)',
-                'plot_number' : 8,
+                'plot_number' : 6,
                 'unit' : mV
             },
-            {
-                'variable': 'E_K',
-                'axis': 'E_K (mV)',
-                'plot_number' : 9,
-                'unit': mV
-            },
-            {
-                'variable': 'E_Cl',
-                'axis': 'E_Cl (mV)',
-                'plot_number' : 10,
-                'unit': mV
-            },
-            {
-                'variable': 'E_Na',
-                'axis': 'E_Na (mV)',
-                'plot_number' : 11,
-                'unit': mV
-            },
+            # {
+            #     'variable': 'E_K',
+            #     'axis': 'E_K (mV)',
+            #     'plot_number' : 9,
+            #     'unit': mV
+            # },
+            # {
+            #     'variable': 'E_Cl',
+            #     'axis': 'E_Cl (mV)',
+            #     'plot_number' : 10,
+            #     'unit': mV
+            # },
+            # {
+            #     'variable': 'E_Na',
+            #     'axis': 'E_Na (mV)',
+            #     'plot_number' : 11,
+            #     'unit': mV
+            # },
             {
                 'variable': 'C_Na_N',
                 'axis': 'C_Na_N in mol/m^3',
-                'plot_number' : 12,
+                'plot_number' : 7,
                 'unit': mmolar
             },
-            {
-                'variable': 'C_Na_E',
-                'axis': 'C_Na_E in mol/m^3',
-                'plot_number' : 13,
-                'unit': mmolar
-            },
+            # {
+            #     'variable': 'C_Na_E',
+            #     'axis': 'C_Na_E in mol/m^3',
+            #     'plot_number' : 13,
+            #     'unit': mmolar
+            # },
             {
                 'variable': 'C_K_N', 
                 'axis': 'C_K_N in mol/m^3',
-                'plot_number' : 14,
+                'plot_number' : 8,
                 'unit': mmolar
             },
-            {
-                'variable': 'C_K_E', 
-                'axis': 'C_K_E in mol/m^3',
-                'plot_number' : 15,
-                'unit': mmolar
-            },
+            # {
+            #     'variable': 'C_K_E', 
+            #     'axis': 'C_K_E in mol/m^3',
+            #     'plot_number' : 15,
+            #     'unit': mmolar
+            # },
             {
                 'variable': 'C_Cl_N',
                 'axis': 'C_Cl_N in mol/m^3',
-                'plot_number' : 16,
+                'plot_number' : 9,
                 'unit': mmolar
             },
-            {
-                'variable': 'C_Cl_E',
-                'axis': 'C_Cl_E in mol/m^3',
-                'plot_number' : 17,
-                'unit': mmolar
-            },
+            # {
+            #     'variable': 'C_Cl_E',
+            #     'axis': 'C_Cl_E in mol/m^3',
+            #     'plot_number' : 17,
+            #     'unit': mmolar
+            # },
             {
                 'variable': 'Check_1',
                 'axis': 'Check_1 in nA/cm^2',
-                'plot_number' : 18,
+                'plot_number' : 10,
                 'unit': namp/cm**2
             },
             {
                 'variable': 'Check_2',
                 'axis': 'Check_2 in nA/cm^2',
-                'plot_number' : 19,
+                'plot_number' : 11,
                 'unit': namp/cm**2
             },
             {
                 'variable': 'Check_3',
                 'axis': 'Check_3 in nA/cm^2',
-                'plot_number' : 20,
+                'plot_number' : 12,
                 'unit': namp/cm**2
             },
-            {
-                'variable': 'm',
-                'axis': 'gating variable m',
-                'plot_number' : 21,
-                'unit': 1
-            },
-            {
-                'variable': 'n',
-                'axis': 'gating variable n',
-                'plot_number' : 22,
-                'unit': 1
-            },
-            {
-                'variable': 'h',
-                'axis': 'gating variable h',
-                'plot_number' : 23,
-                'unit': 1
-            },
-            {
-                'variable': 'p',
-                'axis': 'gating variable p',
-                'plot_number' : 24,
-                'unit': 1
-            },
-            {
-                'variable': 'a_m',
-                'axis': 'activation rate m a_m',
-                'plot_number' : 25,
-                'unit': 1
-            },
-            {
-                'variable': 'b_m',
-                'axis': 'deactivation rate m b_m',
-                'plot_number' : 26,
-                'unit': 1
-            },
+            # {
+            #     'variable': 'm',
+            #     'axis': 'gating variable m',
+            #     'plot_number' : 21,
+            #     'unit': 1
+            # },
+            # {
+            #     'variable': 'n',
+            #     'axis': 'gating variable n',
+            #     'plot_number' : 22,
+            #     'unit': 1
+            # },
+            # {
+            #     'variable': 'h',
+            #     'axis': 'gating variable h',
+            #     'plot_number' : 23,
+            #     'unit': 1
+            # },
+            # {
+            #     'variable': 'p',
+            #     'axis': 'gating variable p',
+            #     'plot_number' : 24,
+            #     'unit': 1
+            # },
+            # {
+            #     'variable': 'a_m',
+            #     'axis': 'activation rate m a_m',
+            #     'plot_number' : 25,
+            #     'unit': 1
+            # },
+            # {
+            #     'variable': 'b_m',
+            #     'axis': 'deactivation rate m b_m',
+            #     'plot_number' : 26,
+            #     'unit': 1
+            # },
             ]
             # },
             # {

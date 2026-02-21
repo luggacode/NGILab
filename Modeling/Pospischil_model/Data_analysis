@@ -49,6 +49,13 @@ def n_inf(V):
 def p_inf(V):
     return 1/(1 + np.exp(- (V + 35)/10))
 
+def get_specific_frequencies(data_dict):
+    specific_spiking_frequencies = np.zeros(data_dict['number_exc_neurons'] + data_dict['number_inh_neurons'])
+    for idx, count in enumerate(data_dict['spike_mon_exc_count']):
+        specific_spiking_frequencies[idx] = count/data_dict['t'][-1]
+    for idx, count in enumerate(data_dict['spike_mon_inh_count']):
+        specific_spiking_frequencies[idx + data_dict['number_exc_neurons']] = count/data_dict['t'][-1]
+    return specific_spiking_frequencies
 
 #-----------------------------------------------------------------------------------------------------------------------
 # Current plotting function
@@ -75,26 +82,28 @@ def plot_currents(filename, plotting_list, neuron_list):
 # Current comparison plotting function
 #-----------------------------------------------------------------------------------------------------------------------
 
-def plot_comparison_currents(plotting_list, neuron_list):
-    fig, ax = plt.subplots(plotting_list[-1]['plot_number']+1, 2,sharex=True, figsize=(14, len(plotting_list) * 1.5), constrained_layout=True)
+def plot_comparison_currents(plotting_list, neuron_list_step, neuron_list_ramp):
+    color_list = ['#225FCF', '#C81D25', "#F5CC6E"]
+    color_list_2 = ['#225FCF']
+    fig, ax = plt.subplots(plotting_list[-1]['plot_number']+1, 2,sharex='col', figsize=(14, len(plotting_list) * 1.5), constrained_layout=True)
     for a in ax.flat:   # .flat works nicely for 2D arrays
         a.tick_params(axis='x', labelsize=8)
         a.tick_params(axis='y', labelsize=8)
         # ax[-1].set_xlabel("time (s)")
-    with np.load('Pospischil_hh-neuron_Time_Step_1000_nA.npz') as step_data:
+    with np.load('data/Pospischil_hh-neuron_exc_Time_Step_3-neurons.npz') as step_data:
         data_dict = dict(step_data.items())
     for element in plotting_list:
         data = data_dict[element['variable']]
         for idx, neuron in enumerate(data): 
-            if idx in neuron_list:
-                ax[element['plot_number']][0].plot(data_dict['t'], neuron, label = 'neuron ' + str(idx), color = element['color'])
+            if idx in neuron_list_step:
+                ax[element['plot_number']][0].plot(data_dict['t'], neuron, label = 'neuron ' + str(idx), color = color_list[idx]) #, color = element['color']
             #ax[element['plot_number']].plot(sv_mon.t/second, getattr(sv_mon, element['variable'])[:].T/element['unit'], label = element['variable'])    
         ax[element['plot_number']][0].set_ylabel(element['axis'], fontsize = 8)
         ax[element['plot_number']][0].xaxis.set_visible(False)
     ax[-1][0].xaxis.set_visible(True)
     ax[-1][0].set_xlabel('time (s)', fontsize = 8)
         # ax[element['plot_number']][0].legend(fontsize = 10)
-    with np.load('Pospischil_hh-neuron_ramp_1000_nA.npz') as step_data:
+    with np.load('data/Pospischil_hh-neuron_exc_ramp_100000_nA.npz') as step_data:
         print(step_data)
         data_dict = dict(step_data.items())
         print(data_dict)
@@ -102,13 +111,15 @@ def plot_comparison_currents(plotting_list, neuron_list):
         data = data_dict[element['variable']]
         for idx, neuron in enumerate(data): 
             # print(neuron)
-            if idx in neuron_list:
-                ax[element['plot_number']][1].plot(data_dict['t'], neuron, label = 'neuron ' + str(idx), color = element['color'])
+            if idx in neuron_list_ramp:
+                ax[element['plot_number']][1].plot(data_dict['t'], neuron, label = 'neuron ' + str(idx) , color = color_list_2[idx])
             #ax[element['plot_number']].plot(sv_mon.t/second, getattr(sv_mon, element['variable'])[:].T/element['unit'], label = element['variable'])    
         ax[element['plot_number']][1].set_ylabel(element['axis'], fontsize = 8)
         ax[element['plot_number']][1].xaxis.set_visible(False)
     ax[-1][1].xaxis.set_visible(True)
     ax[-1][1].set_xlabel('time (s)', fontsize = 8)
+    ax[0][0].set_xlim(0, 1)
+    ax[0][1].set_xlim(0, 0.5)
     fig.align_ylabels(ax[:, 0])
     fig.align_ylabels(ax[:, 1])
         # ax[element['plot_number']][1].legend(fontsize = 10)
@@ -125,7 +136,7 @@ def plot_gating_vars(plotting_list):
         a.tick_params(axis='x', labelsize=8)
         a.tick_params(axis='y', labelsize=8)
         # ax[-1].set_xlabel("time (s)")
-    with np.load('Pospischil_hh-neuron_Time_Step_1000_nA.npz') as step_data:
+    with np.load('data/Pospischil_hh-neuron_Time_Step_1000_nA.npz') as step_data:
         print(step_data)
         data_dict = dict(step_data.items())
         print(data_dict)
@@ -227,24 +238,59 @@ def raster_plot_extended(filename):
     with np.load(filename) as data:
         data_dict = dict(data.items())
     neurons = np.arange(0, data_dict['number_neurons'], 1 , dtype=None)
-    print(neurons)
-    fig, ax = plt.subplots(1, 2, figsize = (10, 5))
-    ax[0].plot(data_dict['spike_mon_exc_t'], data_dict['spike_mon_exc_i'],"|",lw=0.1, color='k', label = 'neuron index')
-    ax[0].plot(data_dict['spike_mon_inh_t'], data_dict['spike_mon_inh_i'] + data_dict['number_exc_neurons'], "|",lw=0.1, color='r', label = 'time (s)')
+    specific_frequencies = get_specific_frequencies(data_dict)
+    fig, ax = plt.subplots(1, 4, figsize = (10, 7), constrained_layout = True, sharey = 'row')
+    ax[0].plot(data_dict['spike_mon_exc_t'], data_dict['spike_mon_exc_i'],'.', markersize = 0.8,color='k', label = 'neuron index')
+    ax[0].plot(data_dict['spike_mon_inh_t'], data_dict['spike_mon_inh_i'] + data_dict['number_exc_neurons'], '.', markersize = 0.8, color='r', label = 'time (s)')
     ax[0].set_xlabel('time (s)', fontsize = 11)
     ax[0].set_ylabel('neuron index', fontsize = 11)
-    ax[1].scatter(data_dict['total_connectivity'], neurons)
-    ax[1].set_xlabel('netto excitation', fontsize = 11)
-    ax[1].set_ylabel('neuron index', fontsize = 11)
+    ax[1].minorticks_on()
+    ax[1].grid(axis = 'y')
+    ax[1].scatter(data_dict['inhibitory_connectivity'], neurons, color = 'r', marker = '.')
+    ax[1].set_xlabel('inhibitory connectivity', fontsize = 11)
+    # ax[1].set_ylabel('neuron index', fontsize = 11)
+    ax[2].scatter(data_dict['total_connectivity'], neurons, marker = '.')
+    ax[2].set_xlabel('netto connectivity', fontsize = 11)
+    ax[3].scatter(specific_frequencies, neurons, marker = '.')
+    ax[3].set_xlabel('spiking frequency frequency (Hz)', fontsize = 11)
+    ax[3].set_xscale('log', base = 10)
+    # ax[2].set_ylabel('neuron index', fontsize = 11)
 
-
-with np.load('Pospischil_hh-neuron_f_I_inj_g_Na_mod.npz') as data:
+def get_frequency_development(filename, times_list):
+    frequencies_exc = []
+    frequencies_inh = []
+    with np.load(filename) as data:
         data_dict = dict(data.items())
-print(data_dict['I_max'])
-print(data_dict['spike_frequency'])
+    print(data_dict['spike_mon_exc_t'])
+    print(data_dict['spike_mon_exc_count'])
+    for time in times_list:
+        spike_counter = 0
+        for spike in data_dict['spike_mon_exc_t']:
+                if spike <= time:
+                    spike_counter += 1
+        frequencies_exc.append(spike_counter/time/data_dict['number_exc_neurons'])
+    for time in times_list:
+        spike_counter = 0
+        for spike in data_dict['spike_mon_inh_t']:
+                if spike <= time:
+                    spike_counter += 1
+        frequencies_inh.append(spike_counter/time/data_dict['number_inh_neurons'])
+    fig, ax = plt.subplots(1,1, figsize = (5,5), constrained_layout = True)
+    ax.set_xlabel('time (s)')
+    ax.set_ylabel('spiking frequency (Hz)')
+    ax.plot(times_list, frequencies_exc, color = '#C81D25', label = 'exc_neurons')
+    ax.plot(times_list, frequencies_inh, color = '#225FCF', label = 'inh_neurons')
+    ax.legend()
 
 
-# plot_comparison_currents(return_plotting_list('hh-neuron'), [0])
+
+# with np.load('data/Pospischil_hh-neuron_f_I_inj_g_Na_mod.npz') as data:
+#         data_dict = dict(data.items())
+# print(data_dict['I_max'])
+# print(data_dict['spike_frequency'])
+
+
+# plot_comparison_currents(return_plotting_list('hh-neuron'), [0, 1, 2] ,[0])
 # plot_gating_vars(return_plotting_list('hh-neuron-addons'))
 # plot_currents('Pospischil_hh-neuron_f_I_inj_g_Na_mod.npz', return_plotting_list('hh-neuron'), [3, 13, 23])
 
@@ -255,7 +301,18 @@ print(data_dict['spike_frequency'])
 
 # raster_plot('Pospischil_hh-neuron-synapse_20_percent_connectivity.npz')
 # plot_equlibrium_gating_vars()
-raster_plot_extended('test.npz')
-plot_currents('test.npz', return_plotting_list('hh-neuron'), [12])
+# raster_plot_extended('data/test.npz')
+# plot_currents('data/test.npz', return_plotting_list('hh-neuron'), [12])
+# raster_plot_extended('data/rate_mon_test.npz')
+#raster_plot_extended('data/rate_mon_test.npz')
+raster_plot('data/malgucken.npz')
+# times_list = np.linspace(0, 1, 20)
+# get_frequency_development('data/test_synaptic-connections.npz', times_list)
+#plot_currents('data/test_synaptic-connections.npz', return_plotting_list('hh-neuron'), [0, 6, 17])
+# plot_currents('data/malgucken.npz', return_plotting_list('hh-ecs'), [0, 1])
+
+# with np.load('data/test_synaptic-connections.npz') as data:
+#     data_dict = dict(data.items())
+# print(get_specific_frequencies(data_dict))
 
 plt.show()

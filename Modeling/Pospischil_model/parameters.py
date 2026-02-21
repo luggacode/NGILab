@@ -35,7 +35,7 @@ def return_initial_parameters(model):
     Return:
     - pars   : dict
     """
-    ta = TimedArray([1] * 5, dt= 1 *second)
+    ta = TimedArray([0] * 1 + [1] * 8 + [0] * 1 , dt= 0.1 *second)
     # ta = TimedArray([0] * 2 + [1] * 2 + [0] * 16, dt=0.005*second)
 
     # Define dictionary of default parameters values
@@ -50,7 +50,6 @@ def return_initial_parameters(model):
             'c_m' : 1*ufarad/cm**2,
             'g_noise_L' : 0.2e6 *usiemens/cm**2,
             'v_thr' : - 50 * mvolt,     
-            'resting_potential' : -70,
             ## Gating variables
             'U_m' : -38*mvolt,
             'U_h' : -66*mvolt,
@@ -61,9 +60,9 @@ def return_initial_parameters(model):
             ## Temperature
             'T_exp' : 36, ## Body temperature of the animal
             ## External Stimulation
-            'I_ramp': 1000*namp/cm**2,
-            'I_max' : 500*namp/cm**2,
-            'T_ramp': 0.4*second,
+            'I_ramp': 100000*namp/cm**2,
+            'I_max' : 1500*namp/cm**2,
+            'T_ramp': 0.2*second,
             'TimedArray' : ta,
             ## Cell surface and volume
             'S_N' : 150*um**2,
@@ -94,6 +93,7 @@ def return_initial_parameters(model):
     # pars = varargin(pars,**kwargs)
 
     if model == 'hh-neuron_exc' or model == 'hh-neuron-synapse_exc':
+        pars['resting_potential'] = -72.5
         pars['E_Na'] = 50 * mvolt
         pars['E_K']  = -90 * mvolt
         pars['E_L'] = -70.3 * mvolt
@@ -104,6 +104,7 @@ def return_initial_parameters(model):
         pars['V_T'] = -56.2 * mvolt
         pars['tau_p_max'] = 0.608 * second
     elif model == 'hh-neuron_inh' or model == 'hh-neuron-synapse_inh':
+        pars['resting_potential'] = -64.8
         pars['E_Na'] = 50 * mvolt
         pars['E_K']  = -90 * mvolt
         pars['E_L'] = -56.2 * mvolt
@@ -111,18 +112,39 @@ def return_initial_parameters(model):
         pars['g_Kd'] = 2.1e3*usiemens/cm**2
         pars['g_M'] = 98 * usiemens/cm**2        ##parameters need to be checked to be fitting to one specific model, could be 4 could be 97 usiems/cm**2
         pars['g_L'] = 13.3 * usiemens/cm**2
-        pars['V_T'] = -67.9 * mvolt
+        pars['V_T'] = -65.4 * mvolt
         pars['tau_p_max'] = 0.934 * second
     elif model == 'hh-ecs_exc' or model == 'hh-ecs-synapse_exc':
+        pars['resting_potential'] = -72.5
         pars['E_Na'] = NernstPotential(pars['C0_Na_E'],pars['C0_Na_N'],1,pars['T_exp'])*volt
         pars['E_K']  = NernstPotential(pars['C0_K_E'],pars['C0_K_N'],1,pars['T_exp'])*volt
         pars['E_Cl'] = NernstPotential(pars['C0_Cl_E'],pars['C0_Cl_N'],-1,pars['T_exp'])*volt
         pars['E_L'] = -70.3 * mvolt
+        pars['g_Na'] = 5.6e4*usiemens/cm**2
+        pars['g_Kd'] = 6e3*usiemens/cm**2
+        pars['g_M'] = 75 * usiemens/cm**2        ##parameters need to be checked to be fitting to one specific model, could be 4 could be 97 usiems/cm**2
         pars['g_Na_L'] = NaN *usiemens/cm**2
         pars['g_K_L'] = 0*usiemens/cm**2
         pars['g_Cl_L'] = 0.5e2*usiemens/cm**2
         pars['g_KCC'] = pars['g_Cl_L'] * (-70*mvolt - pars['E_Cl'])/(pars['E_Cl'] - pars['E_K'])
-        pars['V_T'] = -56.2 * mvolt 
+        pars['V_T'] = -56.2 * mvolt
+        pars['tau_p_max'] = 0.608 * second
+    elif model == 'hh-ecs_inh' or model == 'hh-ecs-synapse_inh':
+        pars['resting_potential'] = -72.5
+        pars['E_Na'] = NernstPotential(pars['C0_Na_E'],pars['C0_Na_N'],1,pars['T_exp'])*volt
+        pars['E_K']  = NernstPotential(pars['C0_K_E'],pars['C0_K_N'],1,pars['T_exp'])*volt
+        pars['E_Cl'] = NernstPotential(pars['C0_Cl_E'],pars['C0_Cl_N'],-1,pars['T_exp'])*volt
+        pars['E_L'] = -70.3 * mvolt
+        pars['g_Na'] = 1e4*usiemens/cm**2
+        pars['g_Kd'] = 2.1e3*usiemens/cm**2
+        pars['g_M'] = 98 * usiemens/cm**2        ##parameters need to be checked to be fitting to one specific model, could be 4 could be 97 usiems/cm**2
+        pars['g_Na_L'] = NaN *usiemens/cm**2
+        pars['g_K_L'] = 0*usiemens/cm**2
+        pars['g_Cl_L'] = 0.5e2*usiemens/cm**2
+        pars['g_KCC'] = pars['g_Cl_L'] * (-70*mvolt - pars['E_Cl'])/(pars['E_Cl'] - pars['E_K'])
+        pars['V_T'] = -65.4 * mvolt
+        pars['tau_p_max'] = 0.934 * second
+
 
     # We define this quantities after any user-defined parameters are specified
     pars['T_adj'] = 2.3**(0.1*(pars['T_exp']-21))
@@ -148,7 +170,7 @@ def return_synapse_pars():
         'tau_r_x' : 5*ms,
         'tau_x' : 50*ms,
         'J' : 1,
-        'g_s_inh' : 400*usiemens/cm**2,
+        'g_s_inh' : 400*usiemens/cm**2,               
         'g_s_exc' : 100*usiemens/cm**2,
         'W' : 4,
         'A' : 0.6,
